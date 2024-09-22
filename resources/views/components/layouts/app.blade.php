@@ -3,6 +3,8 @@
 
 <head>
     <title>{{ $title ?? 'Login Register' }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     @vite('resources/css/app.css')
     {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
     @livewireStyles

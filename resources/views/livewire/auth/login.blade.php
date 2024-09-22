@@ -1,4 +1,4 @@
-<div>
+<section>
     <x-slot name="title">
         login
     </x-slot>
@@ -24,11 +24,15 @@
                 @enderror
             </div>
 
-            <div>
+            <div class="relative">
+
                 <label for="password"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
                 <input type="password" wire:model="password" id="password" placeholder="••••••••"
                     class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <button type="button" class="absolute top-1/2 right-[20px]" id="togglePassword">
+                    <span id="eyeIcon" class="block">👁️</span> <!-- Eye icon for toggle -->
+                </button>
                 @error('password')
                     <div class="text-red-500">{{ $message }}</div>
                 @enderror
@@ -59,3 +63,27 @@
         </form>
 
     </div>
+</section>
+
+<script>
+    // Get the password input and toggle button elements
+    var passwordInput = document.getElementById("password");
+    var togglePassword = document.getElementById("togglePassword");
+    var eyeIcon = document.getElementById("eyeIcon");
+
+    // Add event listener to toggle button
+    togglePassword.addEventListener('click', function() {
+        // Check the current type of the password input field
+        if (passwordInput.type === 'password') {
+            // Change the input type to text to show the password
+            passwordInput.type = 'text';
+            // Change the icon to indicate password is visible (open eye)
+            eyeIcon.textContent = '🙈'; // Change icon to indicate visibility
+        } else {
+            // Change the input type back to password to hide the password
+            passwordInput.type = 'password';
+            // Change the icon back to indicate password is hidden (closed eye)
+            eyeIcon.textContent = '👁️'; // Change icon back to hidden
+        }
+    });
+</script>

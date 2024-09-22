@@ -51,10 +51,19 @@ class Register extends Component
         $data['password'] = Hash::make($this->password);
         $user =  User::create($data);
         $user->assignRole('user');
+        $this->inputNull();
         session()->flash('success', 'User created successfully');
     }
     public function render()
     {
         return view('livewire.auth.register');
+    }
+
+    public function inputNull()
+    {
+        $this->name = "";
+        $this->email = "";
+        $this->password = "";
+        $this->phone = "";
     }
 }
