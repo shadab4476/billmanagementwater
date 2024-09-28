@@ -32,13 +32,13 @@ Route::group(["middleware" => "guest"], function () {
 Route::group(["middleware" => "auth"], function () {
     Route::post('/logout', Logout::class)->name('logout');
     // routes of shop 
-    Route::get('/shop/index', ShopIndex::class)->name('index.shop');
+    Route::get('/shops', ShopIndex::class)->name('index.shop');
 
     // only admin
     Route::group(["middleware" => "role:admin"], function () {
         // user rotues
-        Route::get('/user/index', UserIndex::class)->name('index.user');
-        Route::get('/bill/index', BillIndex::class)->name('index.bill');
+        Route::get('/users', UserIndex::class)->name('index.user');
+        Route::get('/bills', BillIndex::class)->name('index.bill');
         Route::post('/active', UserIndex::class)->name('active.user');
     });
 });

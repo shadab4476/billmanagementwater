@@ -11,9 +11,7 @@ class Bill extends Model
     protected $fillable = [
         'shop_id',
         'date',
-        'bill_number',
         'amount',
-        'status',
         'type',
         'note',
     ];

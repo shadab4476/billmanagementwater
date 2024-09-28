@@ -7,7 +7,8 @@ use Livewire\Component;
 
 class Login extends Component
 {
-    public  $email, $password;
+    public  $email, $password, $passwordType = "password";
+
 
     public function updated($data)
     {
@@ -20,7 +21,6 @@ class Login extends Component
 
     public function login()
     {
-
         $this->validate([
             "email" => "required",
             "password" => "required",
@@ -45,5 +45,10 @@ class Login extends Component
     {
         $this->email = "";
         $this->password = "";
+    }
+
+    public function typeToggle()
+    {
+        $this->passwordType == "password" ? $this->passwordType = "text" : $this->passwordType = "password";
     }
 }

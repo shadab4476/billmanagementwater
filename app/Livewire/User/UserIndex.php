@@ -3,22 +3,18 @@
 namespace App\Livewire\User;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class UserIndex extends Component
 {
     use WithPagination;
-    public $name, $email, $password, $phone, $isActive, $time;
-    public $users, $userEdit;
+    public $name, $email, $password, $phone, $isActive, $time, $passwordType = "password";
+    public  $userEdit;
     public $user_id;
     public $modelmain, $editModelUser, $showDeleteModal = false; //models
 
-    public function mount()
-    {
-        // $this->users = User::paginate(1);
-        $this->users = User::get();
-    }
 
     public function updated($data)
     {
@@ -54,10 +50,11 @@ class UserIndex extends Component
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
         try {
+            $data['password'] = Hash::make($this->password);
             $user =  User::create($data);
             $user->assignRole('user');
             $this->mainModelClose();
-            $this->mount();
+            $this->render();
             session()->flash('success', 'User created successfully');
         } catch (\Exception $e) {
             $this->mainModelClose();
@@ -96,7 +93,7 @@ class UserIndex extends Component
             ]);
             $this->userEdit->update($dataUpdate);
             $this->mainModelClose();
-            $this->mount();
+            $this->render();
             session()->flash('success', 'User updated successfully...');
         } catch (\Exception $e) {
             $this->mainModelClose();
@@ -118,7 +115,7 @@ class UserIndex extends Component
         try {
             $userDelete = User::findOrFail($this->user_id);
             $userDelete->delete();
-            $this->mount();
+            $this->render();
             session()->flash('success', 'User Deleted successfully...');
         } catch (\Exception $e) {
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
@@ -142,18 +139,30 @@ class UserIndex extends Component
 
     public function render()
     {
+        if (auth()->user()->hasRole('admin')) {
+            $users = User::paginate(5);
+        } else {
+            $users = User::whereUserId(auth()->user()->id)->paginate(1);
+        }
+
         $this->isActive();
-        return view('livewire.user.user-index');
+        return view('livewire.user.user-index', ["users" => $users]);
     }
 
     public function isActive()
     {
-        try {
-            $this->time = time();
-            $this->isActive = User::get(["status", "id"]);
-        } catch (\Exception $e) {
-            $this->mainModelClose();
-            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        if (auth()->user()->hasRole('admin')) {
+            try {
+                $this->time = time();
+                $this->isActive = User::get(["status", "id"]);
+            } catch (\Exception $e) {
+                $this->mainModelClose();
+                session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+            }
         }
+    }
+    public function typeToggle()
+    {
+        $this->passwordType == "password" ? $this->passwordType = "text" : $this->passwordType = "password";
     }
 }

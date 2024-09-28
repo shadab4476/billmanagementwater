@@ -14,12 +14,6 @@ class ShopIndex extends Component
     use WithPagination;
 
     public $isActive, $time; //active check
-    public $shops;
-    public function mount()
-    {
-        // $this->shops = Shop::paginate(1);
-        $this->shops = Shop::get();
-    }
     public function updated($data)
     {
         $this->validateOnly($data, [
@@ -30,10 +24,11 @@ class ShopIndex extends Component
         ]);
     }
     // variable issued
-    public   $shop_name, $shop_image, $oldImage, $shop_address, $shop_description; // shop data
+    public   $shop_name, $shop_image, $oldImage, $shop_address, $shop_description, $status; // shop data
     public $shopEdit; // shop edit data  
     public $shop_id; // shop_id  
     public $editModelShop = false, $showDeleteModal = false; //model edit or crate open..
+    public  $showStatusModal = false; //model status..
     public $modelmain = false; //model main open..
 
     public function mainModelOpen()
@@ -65,7 +60,7 @@ class ShopIndex extends Component
                 $shop_data['shop_image'] = null;
             }
             Shop::create($shop_data);
-            $this->mount();
+            $this->render();
             $this->mainModelClose();
             session()->flash('success', 'Shop created successfully...');
         } catch (\Exception $e) {
@@ -101,7 +96,7 @@ class ShopIndex extends Component
                 $dataUpdate['shop_image'] = $this->shopEdit->shop_image;
             }
             $this->shopEdit->update($dataUpdate);
-            $this->mount();
+            $this->render();
             $this->mainModelClose();
             session()->flash('success', 'Shop updated successfully...');
         } catch (\Exception $e) {
@@ -111,33 +106,72 @@ class ShopIndex extends Component
     }
     public function openDeleteModel($id)
     {
-        $this->shop_id = $id;
-        $this->showDeleteModal = true;
+        if (auth()->user()->hasRole('admin')) {
+
+            $this->shop_id = $id;
+            $this->showDeleteModal = true;
+        }
     }
     public function closeDeleteModal()
     {
-        $this->shop_id = null;
-        $this->showDeleteModal = false;
+        if (auth()->user()->hasRole('admin')) {
+
+            $this->shop_id = null;
+            $this->showDeleteModal = false;
+        }
+    }
+    public function openStatusModel($id)
+    {
+        if (auth()->user()->hasRole('admin')) {
+
+            $this->shop_id = $id;
+            $shopStatus = Shop::findOrFail($this->shop_id);
+            $this->status = $shopStatus->status;
+            $this->showStatusModal = true;
+        }
+    }
+    public function closeStatusModal()
+    {
+        if (auth()->user()->hasRole('admin')) {
+
+            $this->shop_id = null;
+            $this->showStatusModal = false;
+        }
+    }
+    public function updateStatus()
+    {
+        if (auth()->user()->hasRole('admin')) {
+            $this->validate([
+                'status' => 'required',
+            ]);
+            try {
+                $shopStatus = Shop::findOrFail($this->shop_id);
+                $shopStatus->status = $this->status;
+                $shopStatus->update();
+                $this->render();
+                session()->flash('success', 'Shop Status Changed successfully...');
+            } catch (\Exception $e) {
+                $this->mainModelClose();
+                session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+            }
+            $this->showStatusModal = false;
+        }
     }
 
     public function deleteShop()
     {
-
-        try {
-            $shopDelete = Shop::findOrFail($this->shop_id);
-            $shopDelete->delete();
-            $this->mount();
-            session()->flash('success', 'Shop Deleted successfully...');
-        } catch (\Exception $e) {
-            $this->mainModelClose();
-            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        if (auth()->user()->hasRole('admin')) {
+            try {
+                $shopDelete = Shop::findOrFail($this->shop_id);
+                $shopDelete->delete();
+                $this->render();
+                session()->flash('success', 'Shop Deleted successfully...');
+            } catch (\Exception $e) {
+                $this->mainModelClose();
+                session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+            }
+            $this->showDeleteModal = false;
         }
-        $this->showDeleteModal = false;
-    }
-    public function render()
-    {
-        $this->isActive();
-        return view('livewire.shop.shop-index');
     }
 
     protected function dataInput()
@@ -158,10 +192,25 @@ class ShopIndex extends Component
     {
         try {
             $this->time = time();
-            $this->isActive = Shop::get(["status", "id"]);
+            if (auth()->user()->hasRole('admin')) {
+
+                $this->isActive = Shop::get(["status", "id"]);
+            } else {
+                $this->isActive = Shop::whereUserId(auth()->user()->id)->get(["status", "id"]);
+            }
         } catch (\Exception $e) {
             $this->mainModelClose();
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
+    }
+    public function render()
+    {
+        if (auth()->user()->hasRole('admin')) {
+            $shops = Shop::with('users')->paginate(5);
+        } else {
+            $shops = Shop::with('users')->whereUserId(auth()->user()->id)->paginate(5);
+        }
+        $this->isActive();
+        return view('livewire.shop.shop-index', ["shops" => $shops]);
     }
 }

@@ -14,13 +14,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Permission::create(['name' => 'view.home', "guard_name" => "web",]);
+        // Permission::insert([
+        //     ['name' => 'create.user', 'guard_name' => 'web'],
+        //     ['name' => 'view.user', 'guard_name' => 'web'],
+        //     ['name' => 'edit.user', 'guard_name' => 'web'],
+        //     ['name' => 'delete.user', 'guard_name' => 'web'],
+        // ]);
         // $admin = Role::create(['name' => 'admin', "guard_name" => "web",]);
-        $user = Role::create(['name' => 'user', "guard_name" => "web",]);
-        $admin = Role::where(['id' => 1])->first();
-        $admin->givePermissionTo([
-            'view.home'
-        ]);
+        // $user = Role::create(['name' => 'user', "guard_name" => "web",]);
+        // $admin = Role::where(['id' => 1])->first();
+        $user = Role::where(['id' => 2])->first();
+        // $admin->givePermissionTo([
+        //     'create.user',
+        //     'edit.user',
+        //     'delete.user',
+        //     'view.user',
+        // ]);
         $user->givePermissionTo([
             'view.home',
         ]);

@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class Register extends Component
 {
-    public $name, $email, $password, $phone;
+    public $name, $email, $password, $phone,$passwordType="password";
 
 
     // public function hydrate() {
@@ -52,6 +52,11 @@ class Register extends Component
         $user =  User::create($data);
         $user->assignRole('user');
         $this->inputNull();
+        auth()->login($user);
+        $user =  User::find(auth()->user()->id);
+        $user->status = true;
+        $user->update();
+        return redirect()->route('home');
         session()->flash('success', 'User created successfully');
     }
     public function render()
@@ -65,5 +70,10 @@ class Register extends Component
         $this->email = "";
         $this->password = "";
         $this->phone = "";
+    }
+
+    public function typeToggle()
+    {
+        $this->passwordType == "password" ? $this->passwordType = "text" : $this->passwordType = "password";
     }
 }

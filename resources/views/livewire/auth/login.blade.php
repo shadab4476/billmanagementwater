@@ -13,31 +13,35 @@
         @endif
 
         <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="login">
+
             <div>
-                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
-                    email</label>
-                <input type="text" wire:model="email" id="email"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="name@company.com">
+                <x-form-label star="true" label_for="email" input_label="Email" />
+                <x-form-input id="email" input_label="Email" wire:model.live="email" placeholder="name@company.com"
+                    type="email" />
                 @error('email')
                     <div class="text-red-500">{{ $message }}</div>
                 @enderror
             </div>
 
             <div class="relative">
-
-                <label for="password"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                <input type="password" wire:model="password" id="password" placeholder="••••••••"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <button type="button" class="absolute top-1/2 right-[20px]" id="togglePassword">
-                    <span id="eyeIcon" class="block">👁️</span> <!-- Eye icon for toggle -->
-                </button>
+                <x-form-label label_for="password" star="true" input_label="Password" />
+                <div class="relative">
+                    <input type="{{ $passwordType }}" wire:model="password" id="password" placeholder="••••••••"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <button type="button" class="absolute -translate-y-1/2 top-1/2 right-[20px]"
+                        wire:click="typeToggle">
+                        <span id="eyeIcon" class="block">{{ $passwordType == 'password' ? '👁️' : '🙈 ' }}</span>
+                        <!-- Eye icon for toggle -->
+                    </button>
+                </div>
                 @error('password')
                     <div class="text-red-500">{{ $message }}</div>
                 @enderror
             </div>
-            <button type="submit"
+
+            <x-form-button button_text="Create an account" button_type="submit" target="login" />
+
+            {{-- <button type="submit"
                 class="w-full flex justify-center items-center gap-2 text-white bg-black hover:opacity-90 transition-all focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
 
                 <span class="" wire:loading.remove wire:target="login">Login</span>
@@ -54,7 +58,7 @@
                             fill="currentFill" />
                     </svg>
                 </div>
-            </button>
+            </button> --}}
 
             <p class="text-sm font-light text-gray-500 dark:text-gray-400">
                 Don't have an account? <a wire:navigate href="{{ route('register') }}"
@@ -64,7 +68,7 @@
 
     </div>
 </section>
-
+{{-- 
 <script>
     // Get the password input and toggle button elements
     var passwordInput = document.getElementById("password");
@@ -86,4 +90,4 @@
             eyeIcon.textContent = '👁️'; // Change icon back to hidden
         }
     });
-</script>
+</script> --}}
