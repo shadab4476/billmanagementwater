@@ -26,17 +26,20 @@
                             </a>
                         </li>
                         @auth
-                            @role('admin')
+                            @role(['superAdmin', 'admin'])
                                 <li>
                                     <a wire:navigate href="{{ route('index.user') }}"
                                         class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent  {{ request()->routeIs('index.user') ? 'md:text-blue-700' : '' }} md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">User
                                     </a>
                                 </li>
-                                <li>
-                                    <a wire:navigate href="{{ route('index.bill') }}"
-                                        class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent  {{ request()->routeIs('index.bill') ? 'md:text-blue-700' : '' }} md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Bill
-                                    </a>
-                                </li>
+                                @role('superAdmin')
+                                
+                                    <li>
+                                        <a wire:navigate href="{{ route('index.maintanance') }}"
+                                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent  {{ request()->routeIs('index.maintanance') ? 'md:text-blue-700' : '' }} md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Maintenance
+                                        </a>
+                                    </li>
+                                @endrole
                             @endauth
                         @endrole
                         <li>

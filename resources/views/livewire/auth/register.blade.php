@@ -11,7 +11,7 @@
         <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="register">
             <div>
                 <x-form-label star="true" label_for="name" input_label="Name" />
-                <x-form-input id="name" input_label="Name" class="" wire:model.live="name" placeholder="Name"
+                <x-form-input autofocus id="name" input_label="Name" class="" wire:model.live="name" placeholder="Name"
                     type="text" required />
                 @error('name')
                     <div class="text-red-500">{{ $message }}</div>

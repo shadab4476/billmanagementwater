@@ -106,7 +106,7 @@ class ShopIndex extends Component
     }
     public function openDeleteModel($id)
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
 
             $this->shop_id = $id;
             $this->showDeleteModal = true;
@@ -114,7 +114,7 @@ class ShopIndex extends Component
     }
     public function closeDeleteModal()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
 
             $this->shop_id = null;
             $this->showDeleteModal = false;
@@ -122,7 +122,7 @@ class ShopIndex extends Component
     }
     public function openStatusModel($id)
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
 
             $this->shop_id = $id;
             $shopStatus = Shop::findOrFail($this->shop_id);
@@ -132,7 +132,7 @@ class ShopIndex extends Component
     }
     public function closeStatusModal()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
 
             $this->shop_id = null;
             $this->showStatusModal = false;
@@ -140,7 +140,7 @@ class ShopIndex extends Component
     }
     public function updateStatus()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             $this->validate([
                 'status' => 'required',
             ]);
@@ -160,7 +160,7 @@ class ShopIndex extends Component
 
     public function deleteShop()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             try {
                 $shopDelete = Shop::findOrFail($this->shop_id);
                 $shopDelete->delete();
@@ -192,7 +192,7 @@ class ShopIndex extends Component
     {
         try {
             $this->time = time();
-            if (auth()->user()->hasRole('admin')) {
+            if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
 
                 $this->isActive = Shop::get(["status", "id"]);
             } else {
@@ -205,7 +205,7 @@ class ShopIndex extends Component
     }
     public function render()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             $shops = Shop::with('users')->paginate(5);
         } else {
             $shops = Shop::with('users')->whereUserId(auth()->user()->id)->paginate(5);

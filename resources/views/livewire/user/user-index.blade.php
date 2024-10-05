@@ -136,7 +136,7 @@
     <div class="w-full">
         <div class="flex justify-between ">
             @auth
-                @role('admin')
+                @role(['superAdmin', 'admin'])
                     @can('create.user')
                         <button wire:click="mainModelOpen" type="button"
                             class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded mb-2">Create
@@ -153,8 +153,9 @@
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Name </th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Email</th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Phone</th>
+                        <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Role</th>
                         @auth
-                            @role('admin')
+                            @role(['superAdmin', 'admin'])
                                 <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Status</th>
                             @endrole
                         @endauth
@@ -170,8 +171,16 @@
                             <td class="px-6 text-center py-4">{{ $user->name ? $user->name : '-' }}</td>
                             <td class="px-6 text-center py-4">{{ $user->email ? $user->email : '-' }}</td>
                             <td class="px-6 text-center py-4">{{ $user->phone ? $user->phone : '-' }}</td>
+                            <td class="px-6 py-4 text-center">
+                                @foreach ($user->roles as $role)
+                                    <span
+                                        class="font-medium capitalize {{ $role->name == 'admin' ? 'text-green-600' : ($role->name == 'user' ? 'text-red-500' : ($role->name == 'superAdmin' ? 'text-blue-500' : '')) }}">
+                                        {{ $role->name }}
+                                    </span>
+                                @endforeach
+                            </td>
                             @auth
-                                @role('admin')
+                                @role(['superAdmin', 'admin'])
                                     @foreach ($isActive as $activeUser)
                                         @if ($user->id == $activeUser->id)
                                             <td
@@ -184,7 +193,7 @@
 
                             <td class="text-center px-4 py-4">
                                 @auth
-                                    @role('admin')
+                                    @role(['superAdmin', 'admin'])
                                         @can('edit.user')
                                             <button type="button" wire:click="editUser({{ $user->id }})"
                                                 class="hover:bg-green-400 transition-all origin-bottom-left bg-green-500 px-3 py-1 text-slate-50 rounded">Edit
@@ -193,7 +202,7 @@
                                     @endrole
                                 @endauth
                                 @auth
-                                    @role('admin')
+                                    @role(['superAdmin', 'admin'])
                                         @can('delete.user')
                                             <button type="button" wire:click="openDeleteModel({{ $user->id }})"
                                                 class="hover:bg-red-400 transition-all origin-bottom-left bg-red-500 px-3 py-1 text-slate-50 rounded">Delete
@@ -219,5 +228,4 @@
             {{ $users->links('pagination::tailwind') }}
         </div>
     </div>
-
 </section>

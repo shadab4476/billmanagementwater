@@ -170,7 +170,7 @@
                                 @if ($shop->id == $activeUser->id)
                                     <td
                                         class="px-6 text-center  {{ $activeUser->status == 0 ? 'text-yellow-500' : ($activeUser->status == 1 ? 'text-green-500' : ($activeUser->status == 2 ? 'text-red-500' : 'Unknown')) }} font-bold py-4">
-                                        {{ $activeUser->status == 0 ? 'Pending' : ($activeUser->status == 1 ? 'Running' : ($activeUser->status == 2 ? 'Close' : 'Unknown')) }}
+                                        {{ $activeUser->status == 0 ? 'Pending' : ($activeUser->status == 1 ? 'Running' : ($activeUser->status == 2 ? 'Closed' : 'Unknown')) }}
                                     </td>
                                 @endif
                             @empty
@@ -192,12 +192,12 @@
                             <td class="px-6 text-center   max-w-xs break-words py-4">
                                 {{ $shop->shop_description ? $shop->shop_description : '-' }}
                             </td>
-                            <td class="text-center px-4 py-4">
+                            <td class="text-center  flex justify-center items-center gap-1 flex-wrap px-4 py-4">
                                 <button type="button" wire:click="editShop({{ $shop->id }})"
                                     class="hover:bg-green-400 transition-all origin-bottom-left bg-green-500 px-3 py-1 text-slate-50 rounded">Edit
                                 </button>
                                 @auth
-                                    @role('admin')
+                                    @role(['superAdmin', 'admin'])
                                         <button type="button" wire:click="openDeleteModel({{ $shop->id }})"
                                             class="hover:bg-red-400 transition-all origin-bottom-left bg-red-500 px-3 py-1 text-slate-50 rounded">Delete
                                         </button>

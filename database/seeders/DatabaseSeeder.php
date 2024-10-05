@@ -14,24 +14,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Permission::insert([
-        //     ['name' => 'create.user', 'guard_name' => 'web'],
-        //     ['name' => 'view.user', 'guard_name' => 'web'],
-        //     ['name' => 'edit.user', 'guard_name' => 'web'],
-        //     ['name' => 'delete.user', 'guard_name' => 'web'],
-        // ]);
-        // $admin = Role::create(['name' => 'admin', "guard_name" => "web",]);
+        Permission::insert([
+            ['name' => 'bill.create', 'guard_name' => 'web'],
+            ['name' => 'bill.index', 'guard_name' => 'web'],
+            ['name' => 'bill.delete', 'guard_name' => 'web'],
+            ['name' => 'bill.edit', 'guard_name' => 'web'],
+        ]);
+        $admin = Role::create(['name' => 'superAdmin', "guard_name" => "web",]);
         // $user = Role::create(['name' => 'user', "guard_name" => "web",]);
-        // $admin = Role::where(['id' => 1])->first();
-        $user = Role::where(['id' => 2])->first();
-        // $admin->givePermissionTo([
-        //     'create.user',
-        //     'edit.user',
-        //     'delete.user',
-        //     'view.user',
-        // ]);
-        $user->givePermissionTo([
+        $admin = Role::where(['id' => 2])->first();
+        $superadmin = Role::where(['id' => 3])->first();
+        // $user = Role::where(['id' => 2])->first();
+        $admin->givePermissionTo([
+            'bill.index',
+        ]);
+        $superadmin->givePermissionTo([
+            'bill.create',
+            'bill.delete',
+            'bill.index',
+            'bill.edit',
+            'create.user',
+            'edit.user',
+            'delete.user',
+            'view.user',
             'view.home',
         ]);
+        // $user->givePermissionTo([
+        //     'view.home',
+        // ]);
     }
 }

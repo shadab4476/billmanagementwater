@@ -113,7 +113,12 @@ class UserIndex extends Component
     public function deleteUser()
     {
         try {
+            $userAuth = User::findOrFail(auth()->user()->id);
             $userDelete = User::findOrFail($this->user_id);
+            if ($userDelete->id == $userAuth->id) {
+                $this->showDeleteModal = false;
+                return   session()->flash('error', 'Somthing went wrong.. ');
+            }
             $userDelete->delete();
             $this->render();
             session()->flash('success', 'User Deleted successfully...');
@@ -139,19 +144,23 @@ class UserIndex extends Component
 
     public function render()
     {
-        if (auth()->user()->hasRole('admin')) {
-            $users = User::paginate(5);
-        } else {
-            $users = User::whereUserId(auth()->user()->id)->paginate(1);
+        try {
+            if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+                $users =     User::with('roles')->paginate(5);
+            } else {
+                $users = User::whereUserId(auth()->user()->id)->paginate(1);
+            }
+            $this->isActive();
+            return view('livewire.user.user-index', ["users" => $users]);
+        } catch (\Exception $e) {
+            $this->mainModelClose();
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
-
-        $this->isActive();
-        return view('livewire.user.user-index', ["users" => $users]);
     }
 
     public function isActive()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             try {
                 $this->time = time();
                 $this->isActive = User::get(["status", "id"]);

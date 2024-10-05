@@ -16,8 +16,8 @@
 
             <div>
                 <x-form-label star="true" label_for="email" input_label="Email" />
-                <x-form-input id="email" input_label="Email" wire:model.live="email" placeholder="name@company.com"
-                    type="email" />
+                <x-form-input autofocus id="email" input_label="Email" wire:model.live="email"
+                    placeholder="name@company.com" type="email" />
                 @error('email')
                     <div class="text-red-500">{{ $message }}</div>
                 @enderror

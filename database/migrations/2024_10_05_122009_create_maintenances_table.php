@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bills', function (Blueprint $table) {
+        Schema::create('maintenances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("shop_id")->nullable();
-            $table->foreign("shop_id")->references('id')->on("shops")->onDelete("cascade");
+            $table->unsignedBigInteger("user_id")->nullable();
+            $table->foreign("user_id")->references('id')->on("users")->onDelete("restrict");
             $table->decimal('amount');
             $table->date('date'); //Y-m-d
             $table->string("note");
             $table->boolean("type");
+            $table->decimal('total_amount');
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bills');
+        Schema::dropIfExists('maintenances');
     }
 };

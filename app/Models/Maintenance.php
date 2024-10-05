@@ -5,18 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Bill extends Model
+class Maintenance extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'shop_id',
+        'user_id',
         'date',
         'amount',
+        'total_amount',
         'type',
         'note',
+        "created_at",
     ];
-    public function shops()
+    public function users()
     {
-        return $this->belongsTo(Shop::class, 'shop_id', "id");
+        return $this->belongsTo(User::class, 'user_id', "id");
     }
 }
