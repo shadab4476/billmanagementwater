@@ -10,12 +10,24 @@ use Livewire\WithPagination;
 class UserIndex extends Component
 {
     use WithPagination;
-    public $name, $email, $password, $phone, $isActive, $time, $passwordType = "password";
+    public $name, $email, $password, $phone, $countUser, $isActive, $time, $passwordType = "password";
     public  $userEdit;
     public $user_id;
     public $modelmain, $editModelUser, $showDeleteModal = false; //models
+    public $user_select = [], $selectAll = false; // all select user deleted
 
-
+    public function mount()
+    {
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+            try {
+                $this->time = time();
+                $this->isActive = User::get(["status", "id"]);
+            } catch (\Exception $e) {
+                $this->mainModelClose();
+                session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+            }
+        }
+    }
     public function updated($data)
     {
         $this->validateOnly($data, [
@@ -100,7 +112,7 @@ class UserIndex extends Component
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
     }
-    public function openDeleteModel($id)
+    public function openDeleteModel($id = null)
     {
         $this->user_id = $id;
         $this->showDeleteModal = true;
@@ -110,16 +122,53 @@ class UserIndex extends Component
         $this->user_id = null;
         $this->showDeleteModal = false;
     }
+    public function updatedSelectAll($value)
+    {
+        try {
+            if ($value) {
+                $this->user_select = User::orderBy("created_at", "desc")->limit(5)->pluck('id')->toArray();
+            } else {
+                $this->user_select = [];
+            }
+        } catch (\Exception $e) {
+            $this->mainModelClose();
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        }
+    }
     public function deleteUser()
     {
         try {
+            $superAdmins = User::role("superAdmin")->get("id");
             $userAuth = User::findOrFail(auth()->user()->id);
-            $userDelete = User::findOrFail($this->user_id);
-            if ($userDelete->id == $userAuth->id) {
-                $this->showDeleteModal = false;
-                return   session()->flash('error', 'Somthing went wrong.. ');
+            if ($this->user_select == [] || $this->user_id) {
+                $userDelete = User::findOrFail($this->user_id);
+                if ($userDelete->id == $userAuth->id) {
+                    $this->showDeleteModal = false;
+                    return session()->flash('error', 'Somthing went wrong.. You cannot delete yourself.');
+                }
+                // Prevent Super Admin deletion
+                if ($superAdmins->contains($userDelete->id)) {
+                    $this->showDeleteModal = false;
+                    return session()->flash('error', 'Something went wrong.. Super Admin cannot be deleted.');
+                }
+                $userDelete->delete();
+            } else {
+                $userDelete = User::whereIn("id", $this->user_select)->get('id');
+                if ($userDelete->contains('id', $userAuth->id)) {
+                    $this->showDeleteModal = false;
+                    return session()->flash('error', 'Somthing went wrong.. You cannot delete yourself.');
+                }
+                foreach ($userDelete as $user) {
+                    if ($superAdmins->contains($user->id)) {
+                        $this->showDeleteModal = false;
+                        return session()->flash('error', 'Something went wrong.. Super Admin cannot be deleted.');
+                    }
+                }
+                $userDelete = User::whereIn("id", $this->user_select);
+                $userDelete->delete();
+                $this->user_select = false;
+                $this->selectAll = false;
             }
-            $userDelete->delete();
             $this->render();
             session()->flash('success', 'User Deleted successfully...');
         } catch (\Exception $e) {
@@ -150,7 +199,6 @@ class UserIndex extends Component
             } else {
                 $users = User::whereUserId(auth()->user()->id)->paginate(1);
             }
-            $this->isActive();
             return view('livewire.user.user-index', ["users" => $users]);
         } catch (\Exception $e) {
             $this->mainModelClose();
@@ -158,12 +206,14 @@ class UserIndex extends Component
         }
     }
 
-    public function isActive()
+    public function getStatus()
     {
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             try {
                 $this->time = time();
                 $this->isActive = User::get(["status", "id"]);
+                $this->countUser = User::where("status", 1)->get(['status']);
+                $this->countUser = count($this->countUser);
             } catch (\Exception $e) {
                 $this->mainModelClose();
                 session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());

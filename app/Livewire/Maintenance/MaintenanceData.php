@@ -4,7 +4,6 @@
 namespace App\Livewire\Maintenance;
 
 use App\Models\Maintenance;
-use App\Models\Shop;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,10 +12,16 @@ class MaintenanceData extends Component
     use WithPagination;
 
     public $users, $maintenance_id;
+    public $sortBy; // sortBy
     public $modelmain; //models
     public $showDeleteModal = false;
     public  $date, $amount, $note, $user_id, $total_amount, $type = "1"; //input variable
+    public  $maintenance_select = [], $selectAll = false; //select all checkbox deleted
 
+    public function tableSorting($sortBy)
+    {
+        $this->sortBy = $sortBy;
+    }
     public function mainModelOpen()
     {
         $this->modelmain = true;
@@ -67,7 +72,7 @@ class MaintenanceData extends Component
             }
         }
     }
-    public function openDeleteModel($id)
+    public function openDeleteModel($id = null)
     {
         if (auth()->user()->hasRole(['superAdmin'])) {
 
@@ -82,11 +87,30 @@ class MaintenanceData extends Component
             $this->showDeleteModal = false;
         }
     }
+    public function updatedSelectAll($value)
+    {
+        try {
+            if ($value) {
+                $this->maintenance_select = Maintenance::orderBy("created_at", "desc")->limit(5)->pluck('id')->toArray();
+            } else {
+                $this->maintenance_select = [];
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        }
+    }
+
     public function deleteMaintenance()
     {
         if (auth()->user()->hasRole(['superAdmin'])) {
             try {
-                $maintenanceDelete = Maintenance::findOrFail($this->maintenance_id);
+                if ($this->maintenance_select == [] || $this->maintenance_id) {
+                    $maintenanceDelete = Maintenance::findOrFail($this->maintenance_id);
+                } else {
+                    $maintenanceDelete = Maintenance::whereIn("id", $this->maintenance_select);
+                    $this->maintenance_select = false;
+                    $this->selectAll = false;
+                }
                 $maintenanceDelete->delete();
                 $this->render();
                 session()->flash('success', 'Maintenance Bill  Deleted successfully...');
@@ -98,13 +122,15 @@ class MaintenanceData extends Component
         }
     }
 
+
+
     public function render()
     {
 
         if (auth()->user()->hasRole('superAdmin')) {
             try {
                 $today = date('Y-m-d');
-                $maintenances = Maintenance::where("created_at", $today)->paginate(5);
+                $maintenances = Maintenance::where("created_at", $today)->orderBy("id", "desc")->paginate(5);
                 return view('livewire.maintenance.maintenance-data', compact('maintenances'));
             } catch (\Exception $e) {
                 $this->mainModelClose();

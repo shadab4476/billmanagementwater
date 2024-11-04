@@ -4,7 +4,7 @@
             <div class="w-[5%]">
                 <h1 class="w-full   h-full">
                     <a wire:navigate href="{{ route('home') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
-                        <img src="{{ asset('/assets/images/logo.png') }}" class="w-full h-full object-contain"
+                        <img src="{{ asset('/assets/images/app/logo.png') }}" class="w-full h-full object-contain"
                             alt="Logo" />
 
                     </a>
@@ -33,10 +33,9 @@
                                     </a>
                                 </li>
                                 @role('superAdmin')
-                                
                                     <li>
-                                        <a wire:navigate href="{{ route('index.maintanance') }}"
-                                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent  {{ request()->routeIs('index.maintanance') ? 'md:text-blue-700' : '' }} md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Maintenance
+                                        <a wire:navigate href="{{ route('index.maintenance') }}"
+                                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent  {{ request()->routeIs('index.maintenance') || request()->routeIs('all.maintenance') ? 'md:text-blue-700' : '' }} md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Maintenance
                                         </a>
                                     </li>
                                 @endrole

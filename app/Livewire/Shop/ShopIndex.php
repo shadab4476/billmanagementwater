@@ -8,12 +8,27 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithPagination;
 
+
 class ShopIndex extends Component
 {
     use WithFileUploads;
     use WithPagination;
 
     public $isActive, $time; //active check
+    public function mount()
+    {
+        try {
+            $this->time = time();
+            if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+                $this->isActive = Shop::get(["status", "id"]);
+            } else {
+                $this->isActive = Shop::whereUserId(auth()->user()->id)->get(["status", "id"]);
+            }
+        } catch (\Exception $e) {
+            $this->mainModelClose();
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        }
+    }
     public function updated($data)
     {
         $this->validateOnly($data, [
@@ -24,7 +39,7 @@ class ShopIndex extends Component
         ]);
     }
     // variable issued
-    public   $shop_name, $shop_image, $oldImage, $shop_address, $shop_description, $status; // shop data
+    public   $shop_name, $shop_image, $oldImage, $shop_address, $shop_description, $status, $shop_select = [], $selectAll = false; // shop data
     public $shopEdit; // shop edit data  
     public $shop_id; // shop_id  
     public $editModelShop = false, $showDeleteModal = false; //model edit or crate open..
@@ -85,7 +100,6 @@ class ShopIndex extends Component
             'shop_description' => 'nullable|max:50',
         ]);
         try {
-
             $this->shopEdit = Shop::findOrFail($this->shop_id);
             if ($this->shop_image) { //how to unlink inside the folder image
                 $imagePath = 'assets/images/' . $this->shopEdit->shop_image;
@@ -104,10 +118,9 @@ class ShopIndex extends Component
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
     }
-    public function openDeleteModel($id)
+    public function openDeleteModel($id = null)
     {
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-
             $this->shop_id = $id;
             $this->showDeleteModal = true;
         }
@@ -123,7 +136,6 @@ class ShopIndex extends Component
     public function openStatusModel($id)
     {
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-
             $this->shop_id = $id;
             $shopStatus = Shop::findOrFail($this->shop_id);
             $this->status = $shopStatus->status;
@@ -148,7 +160,7 @@ class ShopIndex extends Component
                 $shopStatus = Shop::findOrFail($this->shop_id);
                 $shopStatus->status = $this->status;
                 $shopStatus->update();
-                $this->render();
+                $this->getStatus();
                 session()->flash('success', 'Shop Status Changed successfully...');
             } catch (\Exception $e) {
                 $this->mainModelClose();
@@ -158,11 +170,30 @@ class ShopIndex extends Component
         }
     }
 
+    public function updatedSelectAll($value)
+    {
+        try {
+            if ($value) {
+                $this->shop_select = Shop::orderBy("created_at", "desc")->limit(5)->pluck('id')->toArray();
+            } else {
+                $this->shop_select = [];
+            }
+        } catch (\Exception $e) {
+            $this->mainModelClose();
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        }
+    }
     public function deleteShop()
     {
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
             try {
-                $shopDelete = Shop::findOrFail($this->shop_id);
+                if ($this->shop_select == [] || $this->shop_id) {
+                    $shopDelete = Shop::findOrFail($this->shop_id);
+                } else {
+                    $shopDelete = Shop::whereIn("id", $this->shop_select);
+                    $this->shop_select = false;
+                    $this->selectAll = false;
+                }
                 $shopDelete->delete();
                 $this->render();
                 session()->flash('success', 'Shop Deleted successfully...');
@@ -188,12 +219,11 @@ class ShopIndex extends Component
         $this->shop_image = "";
         $this->shop_name = "";
     }
-    public function isActive()
+    public function getStatus()
     {
         try {
             $this->time = time();
             if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-
                 $this->isActive = Shop::get(["status", "id"]);
             } else {
                 $this->isActive = Shop::whereUserId(auth()->user()->id)->get(["status", "id"]);
@@ -206,11 +236,10 @@ class ShopIndex extends Component
     public function render()
     {
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-            $shops = Shop::with('users')->paginate(5);
+            $shops = Shop::with('users')->orderBy("created_at", "desc")->paginate(5);
         } else {
-            $shops = Shop::with('users')->whereUserId(auth()->user()->id)->paginate(5);
+            $shops = Shop::with('users')->whereUserId(auth()->user()->id)->orderBy("created_at", "desc")->paginate(5);
         }
-        $this->isActive();
         return view('livewire.shop.shop-index', ["shops" => $shops]);
     }
 }

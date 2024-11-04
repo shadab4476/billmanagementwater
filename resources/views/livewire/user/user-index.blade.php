@@ -1,7 +1,7 @@
 <section>
     {{-- user main model start --}}
     @if ($isActive->count() > 0)
-        <span wire:poll.5000ms class="invisible hidden opacity-0">{{ $time }}</span>
+        <span wire:poll.5s="getStatus" class="invisible hidden opacity-0">{{ $time }}</span>
     @endif
     @if ($modelmain == true)
         <div class="fixed overflow-y-scroll top-[50%] left-0 bg-zinc-400 -translate-y-[50%] z-50 h-full w-full ">
@@ -122,7 +122,8 @@
     <div>
         <!-- Modal Background Overlay -->
         @if ($showDeleteModal)
-            <x-delete-model message="User" closeModel="closeDeleteModal" delete="deleteUser" />
+            <x-delete-model message="{{ empty($user_select) || $user_id ? 'this User' : 'Selected User' }}"
+                closeModel="closeDeleteModal" delete="deleteUser" />
         @endif
     </div>
     {{-- delete model end --}}
@@ -134,12 +135,18 @@
         <h2 class="text-white py-2  text-center px-5 bg-red-500">{{ session()->get('error') }} </h2>
     @endif
     <div class="w-full">
-        <div class="flex justify-between ">
+        <div class="flex justify-between items-center ">
             @auth
                 @role(['superAdmin', 'admin'])
                     @can('create.user')
                         <button wire:click="mainModelOpen" type="button"
                             class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded mb-2">Create
+                        </button>
+                        <h4 class="py-3 px-8 text-green-400 transition-all font-bold  rounded mb-2">
+                            {{ $this->countUser ?? 'fetching....' }}
+                        </h4>
+                        <button type="button" wire:click="openDeleteModel" {{ empty($user_select) ? 'disabled' : '' }}
+                            class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete All
                         </button>
                     @endcan
                 @endrole
@@ -149,6 +156,7 @@
             <table class="min-w-full  bg-white border border-gray-200">
                 <thead class="w-full">
                     <tr class="bg-gray-100 border-b border-gray-200">
+                        <th><input type="checkbox" wire:model.live="selectAll"></th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">ID</th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Name </th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Email</th>
@@ -167,6 +175,8 @@
                     @forelse ($users as $user)
                         <!-- Example row -->
                         <tr class="border-b odd:bg-white  even:bg-gray-100   border-gray-200  hover:bg-gray-200">
+                            <td><input type="checkbox" value="{{ $user->id }}" wire:model.live="user_select">
+                            </td>
                             <td class="px-6 text-center py-4">{{ $user->id ? $user->id : '-' }}</td>
                             <td class="px-6 text-center py-4">{{ $user->name ? $user->name : '-' }}</td>
                             <td class="px-6 text-center py-4">{{ $user->email ? $user->email : '-' }}</td>

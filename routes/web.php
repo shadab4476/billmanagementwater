@@ -5,6 +5,7 @@ use App\Livewire\Home;
 use App\Livewire\Auth\Logout;
 use App\Livewire\Auth\Register;
 use App\Livewire\Maintenance\MaintenanceData;
+use App\Livewire\Maintenance\MaintenanceIndex;
 use App\Livewire\Shop\ShopIndex;
 use App\Livewire\User\UserIndex;
 use Illuminate\Support\Facades\Route;
@@ -35,7 +36,8 @@ Route::group(["middleware" => "auth"], function () {
 
     // only superAdmin or admin
     Route::group(["middleware" => ["role:superAdmin"]], function () {
-        Route::get('/maintanance', MaintenanceData::class)->name('index.maintanance');
+        Route::get('/maintenance/index', MaintenanceIndex::class)->name('all.maintenance');
+        Route::get('/maintenance', MaintenanceData::class)->name('index.maintenance');
     });
     Route::group(["middleware" => ["role:superAdmin|admin"]], function () {
         // user rotues

@@ -21,7 +21,9 @@
             {{-- delete model --}}
 
             @if ($showDeleteModal)
-                <x-delete-model message="Maintenance" delete="deleteMaintenance" closeModel="closeDeleteModal" />
+                <x-delete-model
+                    message="{{ empty($maintenance_select) || $maintenance_id ? 'this Maintenance' : 'Selected Maintenance' }}"
+                    delete="deleteMaintenance" closeModel="closeDeleteModal" />
             @endif
             @if (session()->has('success'))
                 <h2 class="text-white py-2  text-center px-5 bg-green-500">{{ session()->get('success') }} </h2>
@@ -88,17 +90,27 @@
                 </div>
 
                 <div class="md:w-[75%] w-full">
-                    <h3 class="text-2xl font-bold mb-6">Today's Maintenance Bills</h3>
+                    <div class="flex justify-between pb-4 items-center">
+                        <h3 class="text-2xl font-bold ">Today's Maintenance Bills</h3>
+                        <a wire:navigate href="{{ route('all.maintenance') }}"
+                            class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded ">Index</a>
+                        <button type="button" wire:click="openDeleteModel" {{ empty($maintenance_select) ? 'disabled' : '' }}
+                            class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete All
+                        </button>
+                    </div>
                     <div class="overflow-x-auto w-full">
                         <table class="min-w-full  bg-white border border-gray-200">
                             <thead class="w-full">
                                 <tr class="bg-gray-100 border-b border-gray-200">
+                                    <th><input type="checkbox" wire:model.live="selectAll"></th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">ID</th>
-                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Shop Name </th>
+                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">User Name </th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Type</th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Amount</th>
-                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Note</th>
-                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Date</th>
+                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700"><button
+                                            wire:click="tableSorting('asc')" type="button">Note {{ $sortBy }}</button>
+                                    </th>
+                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700"> Date </th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Action</th>
                                 </tr>
                             </thead>
@@ -108,6 +120,8 @@
                                         @forelse ($maintenances as $maintenance)
                                             <!-- Example row -->
                                             <tr class="border-b odd:bg-white  even:bg-gray-100   border-gray-200  hover:bg-gray-200">
+                                                <td><input type="checkbox" value="{{ $maintenance->id }}"
+                                                        wire:model.live="maintenance_select"></td>
                                                 <td class="px-6 text-center py-4">{{ $maintenance->id ? $maintenance->id : '-' }}</td>
                                                 <td class="px-6 text-center py-4">
                                                     {{ $maintenance->users->name }}

@@ -7,7 +7,7 @@
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h2 class="text-lg font-bold mb-4">Confirm Deletion</h2>
             <p class="text-sm text-gray-600 mb-4">Are you sure you want to delete
-                {{ $message ? 'this ' . $message : '' }}? This action
+                {{ $message ? $message : '' }}? This action
                 cannot
                 be undone.</p>
 
@@ -19,7 +19,7 @@
                 </button>
 
                 <!-- Confirm Delete Button -->
-                <button type="button" wire:click="{{ $delete }}"
+                <button type="button" wire:click="{{ $delete ? $delete : '' }}"
                     class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
                     Delete
                 </button>

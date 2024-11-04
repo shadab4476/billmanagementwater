@@ -1,6 +1,6 @@
 <section>
     @if ($isActive->count() > 0)
-        <span wire:poll.5000ms class="invisible hidden opacity-0">{{ $time }}</span>
+        <span wire:poll.5s="getStatus" class="invisible hidden opacity-0">{{ $time }}</span>
     @endif
     @if ($modelmain == true)
         <div class="fixed overflow-y-scroll top-[50%] left-0 bg-zinc-400 z-50 -translate-y-[50%] h-full w-full ">
@@ -15,8 +15,8 @@
 
                                 <div>
                                     <x-form-label label_for="shop_name" star="true" input_label="Shop Name" />
-                                    <x-form-input id="shop_name" wire:model.live="shop_name" placeholder="xyz..."
-                                        type="text" />
+                                    <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
+                                        placeholder="xyz..." type="text" />
                                     @error('shop_name')
                                         <div class="text-red-500">{{ $message }}</div>
                                     @enderror
@@ -69,8 +69,8 @@
                             <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="shopUpdate">
                                 <div>
                                     <x-form-label label_for="shop_name" star="true" input_label="Shop Name" />
-                                    <x-form-input id="shop_name" wire:model.live="shop_name" placeholder="xyz..."
-                                        type="text" />
+                                    <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
+                                        placeholder="xyz..." type="text" />
                                     @error('shop_name')
                                         <div class="text-red-500">{{ $message }}</div>
                                     @enderror
@@ -127,7 +127,8 @@
     <div>
         <!-- Modal Background Overlay -->
         @if ($showDeleteModal)
-            <x-delete-model message="Shop" delete="deleteShop" closeModel="closeDeleteModal" />
+            <x-delete-model message="{{ empty($shop_select) || $shop_id ? 'this Shop' : 'Selected Shop' }}"
+                delete="deleteShop" closeModel="closeDeleteModal" />
         @endif
         @if ($showStatusModal)
             <x-status-model checkId="{{ $status }}" closeStatusModel="closeStatusModal"
@@ -140,14 +141,19 @@
     {{-- delete model end --}}
 
     <div class="w-full">
-        <div class="flex justify-between ">
+        <div class="flex justify-between items-center">
             <button wire:click="mainModelOpen" type="button"
                 class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded mb-2">Create</button>
+            <button type="button" wire:click="openDeleteModel" {{ empty($shop_select) ? 'disabled' : '' }}
+                class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete All
+            </button>
         </div>
         <div class="overflow-x-auto w-full">
             <table class="min-w-full  bg-white border border-gray-200">
                 <thead class="w-full">
                     <tr class="bg-gray-100 border-b border-gray-200">
+
+                        <th><input type="checkbox" wire:model.live="selectAll"></th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">ID</th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">User </th>
                         <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Shop Status</th>
@@ -163,6 +169,8 @@
                     @forelse ($shops as $shop)
                         <!-- Example row -->
                         <tr class="border-b odd:bg-white  even:bg-gray-100   border-gray-200  hover:bg-gray-200">
+                            <td><input type="checkbox" value="{{ $shop->id }}" wire:model.live="shop_select">
+                            </td>
                             <td class="px-6 text-center py-4">{{ $shop->id ? $shop->id : '-' }}</td>
                             <td class="px-6 text-center py-4">{{ $shop->users->name ? $shop->users->name : '-' }}
                             </td>
