@@ -29,6 +29,14 @@ class ShopIndex extends Component
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
     }
+    // get variable on url
+    protected $queryString = [
+        'editModelShop' => ['except' => ''],
+        'showDeleteModal' => ['except' => ''],
+        'modelmain' => ['except' => ''],
+        'showStatusModal' => ['except' => ''],
+    ];
+
     public function updated($data)
     {
         $this->validateOnly($data, [

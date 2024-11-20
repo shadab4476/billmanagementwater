@@ -1,6 +1,10 @@
 <section>
     @auth
         @role('superAdmin')
+            {{-- page title start --}}
+            <x-slot name="title">
+                Maintenance Data </x-slot>
+            {{-- title end --}}
             <!-- jQuery -->
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <!-- jQuery UI CSS -->
@@ -18,6 +22,12 @@
             <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
             {{-- select2 end --}}
 
+            @if (session()->has('success'))
+                <h2 class="text-white py-2  text-center px-5 bg-green-500">{{ session()->get('success') }} </h2>
+            @endif
+            @if (session()->has('error'))
+                <h2 class="text-white py-2  text-center px-5 bg-red-500">{{ session()->get('error') }} </h2>
+            @endif
             {{-- delete model --}}
 
             @if ($showDeleteModal)
@@ -25,12 +35,7 @@
                     message="{{ empty($maintenance_select) || $maintenance_id ? 'this Maintenance' : 'Selected Maintenance' }}"
                     delete="deleteMaintenance" closeModel="closeDeleteModal" />
             @endif
-            @if (session()->has('success'))
-                <h2 class="text-white py-2  text-center px-5 bg-green-500">{{ session()->get('success') }} </h2>
-            @endif
-            @if (session()->has('error'))
-                <h2 class="text-white py-2  text-center px-5 bg-red-500">{{ session()->get('error') }} </h2>
-            @endif
+
             <div class="flex justify-between items-stretch flex-warp">
 
                 <div class="md:w-[25%] max-w-xl px-6 py-2 bg-white shadow-md  rounded-lg">
@@ -42,7 +47,7 @@
                             <x-form-label label_for="type" input_label="Type" star="true" />
                             <select wire:model.live="type" id="type"
                                 class="w-full text-slate-950 px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="1">Income</option>
+                                <option value="1" {{ $type == 1 ? 'selected' : '' }}>Income</option>
                                 <option value="0">Expense</option>
                             </select>
                             @error('type')
@@ -107,9 +112,7 @@
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">User Name </th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Type</th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Amount</th>
-                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700"><button
-                                            wire:click="tableSorting('asc')" type="button">Note {{ $sortBy }}</button>
-                                    </th>
+                                    <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Note</th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700"> Date </th>
                                     <th class="text-center px-6 py-3 font-bold uppercase text-gray-700">Action</th>
                                 </tr>
@@ -140,9 +143,9 @@
 
 
                                                 <td class="text-center px-4 py-4">
-                                                    <button type="button" wire:click="editUser({{ $maintenance->id }})"
+                                                    {{-- <button type="button" wire:click="editModalOpen({{ $maintenance->id }})"
                                                         class="hover:bg-green-400 transition-all origin-bottom-left bg-green-500 px-3 py-1 text-slate-50 rounded">Edit
-                                                    </button>
+                                                    </button> --}}
                                                     <button type="button" wire:click="openDeleteModel({{ $maintenance->id }})"
                                                         class="hover:bg-red-400 transition-all origin-bottom-left bg-red-500 px-3 py-1 text-slate-50 rounded">Delete
                                                     </button>
@@ -161,9 +164,9 @@
                             @endauth
                         </table>
                     </div>
-                    {{-- {{ $maintenances->links() }} --}}
                     <div class="flex justify-start gap-x-2">
-                        {{ $maintenances->links('pagination::tailwind') }}
+                        {{ $maintenances->links() }}
+                        {{-- {{ $maintenances->links('pagination::tailwind') }} --}}
                     </div>
                 </div>
 
@@ -183,6 +186,7 @@
                             onSelect: function(dateText) {
                                 // This will send the selected date to Livewire
                                 @this.set('date', dateText);
+
                             }
                         }).datepicker("setDate", today);
                     }

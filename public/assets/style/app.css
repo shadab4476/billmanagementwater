@@ -1,0 +1,43 @@
+/* button css end */
+.homeBackgroundImage {
+    background-image: url('/assets/images/app/water_main_bg_webapp.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* homepage image end */
+
+/* button css start */
+.btnBoxMain {
+    overflow: hidden;
+    position: relative;
+    z-index: 3;
+}
+
+.btnMain {
+    border-radius: 5px;
+}
+
+.btn_web_txt {
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+.btn_web_round {
+    position: absolute;
+    height: 100%;
+    border-radius: 5px;
+    right: 0;
+    z-index: 1;
+    bottom: -80%;
+    width: 100%;
+    background: red;
+    transition: all 0.5s ease;
+}
+
+.btnBoxMain a:hover .btn_web_round {
+    bottom: 0px;
+}
+
+/* button css end */

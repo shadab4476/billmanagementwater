@@ -1,4 +1,9 @@
 <section>
+    {{-- page title start --}}
+    <x-slot name="title">
+        Users </x-slot>
+    {{-- title end --}}
+
     {{-- user main model start --}}
     @if ($isActive->count() > 0)
         <span wire:poll.5s="getStatus" class="invisible hidden opacity-0">{{ $time }}</span>

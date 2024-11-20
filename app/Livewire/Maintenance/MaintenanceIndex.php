@@ -10,11 +10,33 @@ use Livewire\WithPagination;
 class MaintenanceIndex extends Component
 {
     use WithPagination;
-    public $amountTabsActive = "current", $amount, $income, $expense, $monthName; //amount income expense show 
-    public $maintenance_id;
-    public $showDeleteModal = false;
+    public  $date, $amount, $note, $user_id, $total_amount, $type = "1"; //input variable
+    public $perPage,  $getAllMaintenance = false, $searchMaintenance, $orderBy, $startDate, $endDate; // filtering
+    public $totalAmount, $income, $expense, $monthName; //amount income expense show 
+    public $maintenance_id, $maintenance;
+    public $showDeleteModal = false, $editModelMaintenance = false; //models
     public  $maintenance_select = [], $selectAll = false; //select all checkbox deleted
 
+    // get variable on url
+    protected $queryString = [
+        'perPage' => ['except' => ''],
+        'startDate' => ['except' => ''],
+        'endDate' => ['except' => ''],
+        'searchMaintenance' => ['except' => ''],
+        'getAllMaintenance' => ['except' => ''],
+        'orderBy' => ['except' => ''],
+        'editModelMaintenance' => ['except' => ''],
+    ];
+
+    public function updated($data)
+    {
+        $this->validateOnly($data, [
+            'date' => 'required|date_format:Y-m-d', // Ensure correct format
+            'amount' => 'required|numeric|min:1',
+            'note' =>  'required|string',
+            'type' => 'required|boolean',
+        ]);
+    }
     public function openDeleteModel($id = null)
     {
         if (auth()->user()->hasRole(['superAdmin'])) {
@@ -27,6 +49,46 @@ class MaintenanceIndex extends Component
         if (auth()->user()->hasRole(['superAdmin'])) {
             $this->maintenance_id = null;
             $this->showDeleteModal = false;
+        }
+    }
+    public function openEditModelMaintenance($id = null)
+    {
+        if (auth()->user()->hasRole(['superAdmin'])) {
+            $this->maintenance_id = $id;
+            $this->maintenance = Maintenance::findOrFail($this->maintenance_id);
+            $this->dataInput();
+            $this->editModelMaintenance = true;
+        }
+    }
+    public function updateMaintenance()
+    {
+        $this->date == null ?  $this->date = date("Y-m-d") :  $this->date = $this->date;
+        $maintenanceCreate =  date("Y-m-d");
+        $this->user_id = auth()->user()->id;
+        $data = $this->validate([
+            // 'date' => 'required|date_format:Y-m-d', // Ensure correct format
+            'amount' => 'required|numeric|min:1',
+            'total_amount' => 'nullable',
+            'note' =>  'required|string',
+            // 'type' => 'required|boolean',
+            'user_id' => 'required|exists:users,id', // Chek if the user_id exiscts in the users table
+        ]);
+        try {
+            $data["created_at"] = $maintenanceCreate;
+            $data["total_amount"] = 0;
+            $this->maintenance->update($data);
+            $this->closeEditModelMaintenance();
+            $this->render();
+            session()->flash('success', 'Maintenance Bill  Updated Successfully...');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+        }
+    }
+    public function closeEditModelMaintenance()
+    {
+        if (auth()->user()->hasRole(['superAdmin'])) {
+            $this->maintenance_id = null;
+            $this->editModelMaintenance = false;
         }
     }
 
@@ -49,7 +111,14 @@ class MaintenanceIndex extends Component
                 if ($this->maintenance_select == [] || $this->maintenance_id) {
                     $maintenanceDelete = Maintenance::findOrFail($this->maintenance_id);
                 } else {
-                    $maintenanceDelete = Maintenance::whereIn("id", $this->maintenance_select);
+                    $maintenanceIds = is_array($this->maintenance_select) ? $this->maintenance_select : [];
+                    if ($maintenanceIds == []) {
+                        $this->maintenance_select = false;
+                        $this->showDeleteModal = false;
+                        $this->selectAll = false;
+                        return   session()->flash('success', 'Somthing went wrong Please click all check button... ');
+                    }
+                    $maintenanceDelete = Maintenance::whereIn("id", $maintenanceIds);
                     $this->maintenance_select = false;
                     $this->selectAll = false;
                 }
@@ -62,49 +131,85 @@ class MaintenanceIndex extends Component
             $this->showDeleteModal = false;
         }
     }
-    // amount data tabs 
-    public function amountTabs($data = null)
-    {
-        if ($data == "all" || $data == "current") {
-            $this->amountTabsActive = $data;
-            if ($data == "current") {
-                // Current month range
-                $startOfCurrentMonth = Carbon::now()->startOfMonth();
-                $endOfCurrentMonth = Carbon::now()->endOfMonth();
-                $this->income = Maintenance::whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth])->whereType(1)->sum('amount');
-                $this->expense = Maintenance::whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth])->whereType(0)->sum('amount');
-                return    $this->amount = $this->income - $this->expense;
-            } else {
-                $this->income = Maintenance::whereType(1)->sum('amount');
-                $this->expense = Maintenance::whereType(0)->sum('amount');
-                return $this->amount = $this->income - $this->expense;
-            }
-        } else {
-            $this->amountTabsActive = "all";
-        }
-    }
 
-    public function render()
+    public function getAllMaintenances()
     {
         if (auth()->user()->hasRole('superAdmin')) {
             try {
-                $maintenances = Maintenance::orderBy("id", "desc")->paginate(5);
-                $this->monthName = Carbon::now()->format('F'); // e.g., "this month"
 
-                // Current month range
-                // $startOfCurrentMonth = Carbon::now()->startOfMonth();
-                // $endOfCurrentMonth = Carbon::now()->endOfMonth();
-
-                // Last month range
-                // $startOfLastMonth = Carbon::now()->subMonthNoOverflow()->startOfMonth();
-                // $endOfLastMonth = Carbon::now()->subMonthNoOverflow()->endOfMonth();
-
-                return view('livewire.maintenance.maintenance-index', compact('maintenances'));
+                if ($this->getAllMaintenance == true) {
+                    $this->getAllMaintenance = false;
+                } else {
+                    $this->getAllMaintenance = true;
+                }
             } catch (\Exception $e) {
                 session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
             }
         }
     }
+    public function render()
+    {
+        if (auth()->user()->hasRole('superAdmin')) {
+            try {
+                $queryMaintenance = Maintenance::query(); //data sent query
+                $searchQueryMaintenance = Maintenance::query(); //search query
+
+                // Current month range
+                $startOfCurrentMonth = Carbon::now()->startOfMonth();
+                $endOfCurrentMonth = Carbon::now()->endOfMonth();
+
+                // get all maintenance on click button
+                if (!$this->getAllMaintenance) {
+                    $queryMaintenance->orderBy("id", "desc")->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+                    $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+                    $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+                }
+
+
+                // search
+                if ($this->searchMaintenance) {
+                    $searchMaintenanceColumns = ['date', 'amount', 'note', 'type', 'user_id',]; // Add any additional columns here
+                    $queryMaintenance->where(function ($query) use ($searchMaintenanceColumns) {
+                        foreach ($searchMaintenanceColumns as $column) {
+                            $query->orWhere($column, 'like', '%' . $this->searchMaintenance . '%');
+                        }
+                    });
+                    $searchQueryMaintenance->where(function ($query) use ($searchMaintenanceColumns) {
+                        foreach ($searchMaintenanceColumns as $column) {
+                            $query->orWhere($column, 'like', '%' . $this->searchMaintenance . '%');
+                        }
+                    });
+                }
+
+                // min max date range filter
+                if ($this->startDate && $this->endDate) {
+                    $queryMaintenance->whereBetween('date', [$this->startDate, $this->endDate]); //maintenance data sent 
+                    $searchQueryMaintenance->whereBetween('date', [$this->startDate, $this->endDate]); //maintenance search data sent
+                } elseif ($this->startDate) {
+                    // Only startDate has a value, filter from this date onward
+                    $queryMaintenance->where('date', '>=', $this->startDate); //maintenance data sent 
+                    $searchQueryMaintenance->where('date', '>=', $this->startDate); //maintenance search data sent
+                } elseif ($this->endDate) {
+                    // Only endDate has a value, filter up to this date
+                    $queryMaintenance->where('date', '<=', $this->endDate);
+                    $searchQueryMaintenance->where('date', '<=', $this->endDate); //maintenance search data sent
+                }
+                $validPerPageOptions = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+                $perPage = in_array($this->perPage, $validPerPageOptions) ? $this->perPage : 5;
+                $maintenances = $queryMaintenance->paginate($perPage); //sent data to view file ...
+                $this->income = (clone $searchQueryMaintenance)->whereType(1)->sum('amount'); // amount data sent to view files... 
+                $this->expense = (clone $searchQueryMaintenance)->whereType(0)->sum('amount'); // amount data sent to view files... 
+                $this->totalAmount = $this->income - $this->expense; // amount data sent to view files... 
+                return view('livewire.maintenance.maintenance-index', [
+                    "maintenances" => $maintenances,
+                    "validPerPageOptions" => $validPerPageOptions,
+                ]);
+            } catch (\Exception $e) {
+                session()->flash('error', 'Something went wrong: ' . $e->getMessage());
+            }
+        }
+    }
+
     public function mount()
     {
         // Current month range
@@ -114,4 +219,28 @@ class MaintenanceIndex extends Component
         $this->expense = Maintenance::whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth])->whereType(0)->sum('amount');
         return    $this->amount = $this->income - $this->expense;
     }
+
+    protected function dataInput()
+    {
+        // $this->type = $this->maintenance->type;
+        $this->amount = $this->maintenance->amount;
+        $this->note  = $this->maintenance->note;
+        // $this->date = $this->maintenance->date;
+    }
+    public function blankInput()
+    {
+        $this->date = date("Y-m-d");
+        $this->amount = ""; 
+        $this->note = "";
+        $this->user_id = $this->user_id;
+        $this->type = $this->type;
+    }
 }
+
+   // Current month range
+                // $startOfCurrentMonth = Carbon::now()->startOfMonth();
+                // $endOfCurrentMonth = Carbon::now()->endOfMonth();
+
+                // Last month range
+                // $startOfLastMonth = Carbon::now()->subMonthNoOverflow()->startOfMonth();
+                // $endOfLastMonth = Carbon::now()->subMonthNoOverflow()->endOfMonth();

@@ -1,6 +1,6 @@
 @props(['target', 'button_type', 'button_text', 'class'])
 
-<button type="{{ $button_type }}"
+<button type="{{ $button_type }}" wire:loading.attr="disabled"
     class="w-full text-white bg-black hover:opacity-90 transition-all focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 {{ $class }}">
     <span wire:loading.remove wire:target="{{ $target }}">{{ $button_text }}</span>
     <div wire:loading wire:target="{{ $target }}" role="status">

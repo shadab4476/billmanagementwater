@@ -11,17 +11,12 @@ class MaintenanceData extends Component
 {
     use WithPagination;
 
-    public $users, $maintenance_id;
-    public $sortBy; // sortBy
-    public $modelmain; //models
+    public $users, $maintenance_id, $maintenance;
+    public $modelmain, $isEditModalOpen = false; //models
     public $showDeleteModal = false;
     public  $date, $amount, $note, $user_id, $total_amount, $type = "1"; //input variable
     public  $maintenance_select = [], $selectAll = false; //select all checkbox deleted
 
-    public function tableSorting($sortBy)
-    {
-        $this->sortBy = $sortBy;
-    }
     public function mainModelOpen()
     {
         $this->modelmain = true;
@@ -107,7 +102,14 @@ class MaintenanceData extends Component
                 if ($this->maintenance_select == [] || $this->maintenance_id) {
                     $maintenanceDelete = Maintenance::findOrFail($this->maintenance_id);
                 } else {
-                    $maintenanceDelete = Maintenance::whereIn("id", $this->maintenance_select);
+                    $maintenanceIds = is_array($this->maintenance_select) ? $this->maintenance_select : [];
+                    if ($maintenanceIds == []) {
+                        $this->maintenance_select = false;
+                        $this->showDeleteModal = false;
+                        $this->selectAll = false;
+                        return   session()->flash('success', 'Somthing went wrong Please click all check button... ');
+                    }
+                    $maintenanceDelete = Maintenance::whereIn("id", $maintenanceIds);
                     $this->maintenance_select = false;
                     $this->selectAll = false;
                 }
@@ -122,8 +124,7 @@ class MaintenanceData extends Component
         }
     }
 
-
-
+    
     public function render()
     {
 
@@ -147,3 +148,51 @@ class MaintenanceData extends Component
         $this->type = $this->type;
     }
 }
+
+// updated login
+// protected function dataInput()
+// {
+//     $this->type = $this->maintenance->type;
+//     $this->amount = $this->maintenance->amount;
+//     $this->note  = $this->maintenance->note;
+//     $this->date = $this->maintenance->date;
+// }
+// public function editModalOpen($id)
+//     {
+//         $this->maintenance_id = $id;
+//         $this->maintenance = Maintenance::findOrFail($this->maintenance_id);
+//         $this->dataInput();
+//         $this->isEditModalOpen = true;
+//     }
+//     public function updateMaintenance()
+//     {
+//         $this->date == null ?  $this->date = date("Y-m-d") :  $this->date = $this->date;
+//         $maintenanceCreate =  date("Y-m-d");
+//         $this->user_id = auth()->user()->id;
+//         $data = $this->validate([
+//             'date' => 'required|date_format:Y-m-d', // Ensure correct format
+//             'amount' => 'required|numeric|min:1',
+//             'total_amount' => 'nullable',
+//             'note' =>  'required|string',
+//             'type' => 'required|boolean',
+//             'user_id' => 'required|exists:users,id', // Chek if the user_id exiscts in the users table
+//         ]);
+//         try {
+//             $data["created_at"] = $maintenanceCreate;
+//             $data["total_amount"] = 0;
+//             $this->maintenance->update($data);
+//             $this->closeEditModelMaintenance();
+//             $this->render();
+//             $this->blankInput();
+//             session()->flash('success', 'Maintenance Bill  Updated Successfully...');
+//         } catch (\Exception $e) {
+//             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
+//         }
+//     }
+//     public function closeEditModelMaintenance()
+//     {
+//         if (auth()->user()->hasRole(['superAdmin'])) {
+//             $this->maintenance_id = null;
+//             $this->isEditModalOpen = false;
+//         }
+//     }

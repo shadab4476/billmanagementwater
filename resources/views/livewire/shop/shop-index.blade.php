@@ -1,4 +1,9 @@
 <section>
+
+    {{-- page title start --}}
+    <x-slot name="title">
+        Shop </x-slot>
+    {{-- title end --}}
     @if ($isActive->count() > 0)
         <span wire:poll.5s="getStatus" class="invisible hidden opacity-0">{{ $time }}</span>
     @endif
