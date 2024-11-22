@@ -2,7 +2,8 @@
 .homeBackgroundImage {
     background-image: url('/assets/images/app/water_main_bg_webapp.jpg');
     background-size: cover;
-    background-position: center;
+    background-attachment: fixed;
+    background-position: top center;
 }
 
 /* homepage image end */

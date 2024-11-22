@@ -15,6 +15,8 @@ class ShopIndex extends Component
     use WithPagination;
 
     public $isActive, $time; //active check
+    public $perPage, $validPerPageOptions; // pagiantion variables
+    public $search; // search variable
     public function mount()
     {
         try {
@@ -35,6 +37,8 @@ class ShopIndex extends Component
         'showDeleteModal' => ['except' => ''],
         'modelmain' => ['except' => ''],
         'showStatusModal' => ['except' => ''],
+        'perPage' => ['except' => ''],
+        'search' => ['except' => ''],
     ];
 
     public function updated($data)
@@ -182,7 +186,24 @@ class ShopIndex extends Component
     {
         try {
             if ($value) {
-                $this->shop_select = Shop::orderBy("created_at", "desc")->limit(5)->pluck('id')->toArray();
+                $queryShops = Shop::query();
+                if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+                    $queryShops->with('users')->orderBy("created_at", "desc");
+                } else {
+                    $queryShops->with('users')->whereUserId(auth()->user()->id)->orderBy("created_at", "desc");
+                }
+                // search
+                if ($this->search) {
+                    $searchShopColumns = ['id', 'shop_address', "shop_name", "shop_description"]; // Add any additional columns here
+                    $queryShops->where(function ($query) use ($searchShopColumns) {
+                        foreach ($searchShopColumns as $column) {
+                            $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                        }
+                    });
+                }
+                $this->validPerPageOptions = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+                $this->perPage = in_array($this->perPage, $this->validPerPageOptions) ? $this->perPage : 5;
+                $this->shop_select = $queryShops->limit($this->perPage)->pluck('id')->toArray();
             } else {
                 $this->shop_select = [];
             }
@@ -243,11 +264,25 @@ class ShopIndex extends Component
     }
     public function render()
     {
+        $this->validPerPageOptions = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+        $this->perPage = in_array($this->perPage, $this->validPerPageOptions) ? $this->perPage : 5;
+        $queryShops = Shop::query();
         if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-            $shops = Shop::with('users')->orderBy("created_at", "desc")->paginate(5);
+            $queryShops->with('users')->orderBy("created_at", "desc");
         } else {
-            $shops = Shop::with('users')->whereUserId(auth()->user()->id)->orderBy("created_at", "desc")->paginate(5);
+            $queryShops->with('users')->whereUserId(auth()->user()->id)->orderBy("created_at", "desc");
         }
+
+        // search
+        if ($this->search) {
+            $searchShopColumns = ['id', 'shop_address', "shop_name", "shop_description"]; // Add any additional columns here
+            $queryShops->where(function ($query) use ($searchShopColumns) {
+                foreach ($searchShopColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                }
+            });
+        }
+        $shops =   $queryShops->paginate($this->perPage);
         return view('livewire.shop.shop-index', ["shops" => $shops]);
     }
 }

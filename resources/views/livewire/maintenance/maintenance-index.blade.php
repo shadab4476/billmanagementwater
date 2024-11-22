@@ -104,7 +104,7 @@
             {{-- edit model form end --}}
             <div class="w-full">
                 <div class="flex justify-between pb-4 items-center">
-                    <h3 class="text-2xl font-bold "> Maintenance Bills</h3>
+                    <h3 class="text-2xl font-bold ">{{ $getAllMaintenance ? 'All' : '' }} Maintenance Bills</h3>
                     <a wire:navigate href="{{ route('index.maintenance') }}"
                         class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded ">Create</a>
                     <button type="button" wire:click="openDeleteModel" {{ empty($maintenance_select) ? 'disabled' : '' }}

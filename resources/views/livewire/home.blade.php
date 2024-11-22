@@ -13,20 +13,16 @@
     @endif
     <div class="homeBackgroundImage  md:py-[250px] topSection">
         <div class="mx-auto container px-5">
-            <div class="flex justify-between">
-                <div class="w-[50%]">
-                    <h1 class="text-blue-700 font-bold md:text-[80px] leading-none	 text-4xl">Pure & Healthy
-                        Drinking Water
-                    </h1>
-                    <p class="font-medium  text-lg"> save water save life</p>
-                    <div class="btnBoxMain  relative">
-                        <a class="relative btnMain inline-block text-center px-10 py-3 lg bg-red-700" href="{{ route('home') }}" wire:navigate>
-                            <div class="btn_web_round absolute rounded-lg"></div>
-                            <span class="btn_web_txt font-bold">Order Now</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="w-[50%]">
+            <div class="w-full ">
+                <h1 class="mb-5 text-blue-700 text-center font-bold md:text-[80px] leading-none	 text-4xl">Pure & Healthy
+                    Water
+                </h1>
+                <div class="btnBoxMain text-center   relative">
+                    <a class="relative btnMain inline-block text-center px-10 py-3 lg bg-red-700"
+                        href="{{ route('home') }}" wire:navigate>
+                        <div class="btn_web_round absolute rounded-lg"></div>
+                        <span class="btn_web_txt font-bold">Order Now</span>
+                    </a>
                 </div>
             </div>
         </div>

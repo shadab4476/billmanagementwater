@@ -15,6 +15,8 @@ class UserIndex extends Component
     public $user_id;
     public $modelmain, $editModelUser, $showDeleteModal = false; //models
     public $user_select = [], $selectAll = false; // all select user deleted
+    public $perPage, $validPerPageOptions; // pagiantion variables
+    public $search; // search variable
 
     public function mount()
     {
@@ -28,6 +30,11 @@ class UserIndex extends Component
             }
         }
     }
+    // get variable on url
+    protected $queryString = [
+        'perPage' => ['except' => ''],
+        'search' => ['except' => ''],
+    ];
     public function updated($data)
     {
         $this->validateOnly($data, [
@@ -125,8 +132,26 @@ class UserIndex extends Component
     public function updatedSelectAll($value)
     {
         try {
+            $queryUsers = User::query();
+            $queryUsers->orderBy("created_at", "desc");
             if ($value) {
-                $this->user_select = User::orderBy("created_at", "desc")->limit(5)->pluck('id')->toArray();
+                if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+                    $queryUsers->with('roles');
+                } else {
+                    $queryUsers->whereUserId(auth()->user()->id);
+                }
+                // search
+                if ($this->search) {
+                    $searchShopColumns = ['id', 'email', "phone", "name"]; // Add any additional columns here
+                    $queryUsers->where(function ($query) use ($searchShopColumns) {
+                        foreach ($searchShopColumns as $column) {
+                            $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                        }
+                    });
+                }
+                $this->validPerPageOptions   = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+                $perPage = in_array($this->perPage, $this->validPerPageOptions) ? $this->perPage : 5;
+                $this->user_select =  $queryUsers->limit($perPage)->pluck('id')->toArray();
             } else {
                 $this->user_select = [];
             }
@@ -166,6 +191,7 @@ class UserIndex extends Component
                 }
                 $userDelete = User::whereIn("id", $this->user_select);
                 $userDelete->delete();
+                $this->search = "";
                 $this->user_select = false;
                 $this->selectAll = false;
             }
@@ -194,11 +220,26 @@ class UserIndex extends Component
     public function render()
     {
         try {
+
+            $queryUsers = User::query();
+            $queryUsers->orderBy("created_at", "desc");
             if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
-                $users =     User::with('roles')->paginate(5);
+                $queryUsers->with('roles');
             } else {
-                $users = User::whereUserId(auth()->user()->id)->paginate(1);
+                $queryUsers->whereUserId(auth()->user()->id);
             }
+            // search
+            if ($this->search) {
+                $searchShopColumns = ['id', 'email', "phone", "name"]; // Add any additional columns here
+                $queryUsers->where(function ($query) use ($searchShopColumns) {
+                    foreach ($searchShopColumns as $column) {
+                        $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                    }
+                });
+            }
+            $this->validPerPageOptions   = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+            $perPage = in_array($this->perPage, $this->validPerPageOptions) ? $this->perPage : 5;
+            $users =  $queryUsers->paginate($perPage);
             return view('livewire.user.user-index', ["users" => $users]);
         } catch (\Exception $e) {
             $this->mainModelClose();

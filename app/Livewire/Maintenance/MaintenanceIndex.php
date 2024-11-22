@@ -56,6 +56,7 @@ class MaintenanceIndex extends Component
         if (auth()->user()->hasRole(['superAdmin'])) {
             $this->maintenance_id = $id;
             $this->maintenance = Maintenance::findOrFail($this->maintenance_id);
+            // dd($this->maintenance->type);
             $this->dataInput();
             $this->editModelMaintenance = true;
         }
@@ -66,11 +67,11 @@ class MaintenanceIndex extends Component
         $maintenanceCreate =  date("Y-m-d");
         $this->user_id = auth()->user()->id;
         $data = $this->validate([
-            // 'date' => 'required|date_format:Y-m-d', // Ensure correct format
+            'date' => 'required|date_format:Y-m-d', // Ensure correct format
             'amount' => 'required|numeric|min:1',
             'total_amount' => 'nullable',
             'note' =>  'required|string',
-            // 'type' => 'required|boolean',
+            'type' => 'required|boolean',
             'user_id' => 'required|exists:users,id', // Chek if the user_id exiscts in the users table
         ]);
         try {
@@ -96,7 +97,40 @@ class MaintenanceIndex extends Component
     {
         try {
             if ($value) {
-                $this->maintenance_select = Maintenance::orderBy("id", "desc")->limit(5)->pluck('id')->toArray();
+                $queryMaintenanceSelect = Maintenance::query();
+                $startOfCurrentMonth = Carbon::now()->startOfMonth();
+                $endOfCurrentMonth = Carbon::now()->endOfMonth();
+                $queryMaintenanceSelect->orderBy("id", "desc"); //all time id descending ordered
+                // $this->maintenance_select = Maintenance::orderBy("id", "desc")->limit(5)->pluck('id')->toArray();
+                // get all maintenance on click button
+                if (!$this->getAllMaintenance) {
+                    $queryMaintenanceSelect->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+                }
+
+                // // search
+                if ($this->searchMaintenance) {
+                    $searchMaintenanceColumns = ['id', 'date', 'amount', 'note', 'type', 'user_id',]; // Add any additional columns here
+                    $queryMaintenanceSelect->where(function ($query) use ($searchMaintenanceColumns) {
+                        foreach ($searchMaintenanceColumns as $column) {
+                            $query->orWhere($column, 'like', '%' . trim($this->searchMaintenance) . '%');
+                        }
+                    });
+                }
+
+
+                // // min max date range filter
+                if ($this->startDate && $this->endDate) {
+                    $queryMaintenanceSelect->whereBetween('date', [$this->startDate, $this->endDate]); //maintenance data sent 
+                } elseif ($this->startDate) {
+                    // Only startDate has a value, filter from this date onward
+                    $queryMaintenanceSelect->where('date', '>=', $this->startDate); //maintenance data sent 
+                } elseif ($this->endDate) {
+                    // Only endDate has a value, filter up to this date
+                    $queryMaintenanceSelect->where('date', '<=', $this->endDate);
+                }
+                $validPerPageOptions = [5, 10, 50, 100]; //this variable value in maintenance-index.blade.php file perpage... 
+                $perPage = in_array($this->perPage, $validPerPageOptions) ? $this->perPage : 5;
+                $this->maintenance_select =  $queryMaintenanceSelect->limit($perPage)->pluck('id')->toArray();
             } else {
                 $this->maintenance_select = [];
             }
@@ -157,10 +191,10 @@ class MaintenanceIndex extends Component
                 // Current month range
                 $startOfCurrentMonth = Carbon::now()->startOfMonth();
                 $endOfCurrentMonth = Carbon::now()->endOfMonth();
-
+                $queryMaintenance->orderBy("id", "desc"); //all time id descending ordered
                 // get all maintenance on click button
                 if (!$this->getAllMaintenance) {
-                    $queryMaintenance->orderBy("id", "desc")->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+                    $queryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
                     $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
                     $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
                 }
@@ -168,15 +202,15 @@ class MaintenanceIndex extends Component
 
                 // search
                 if ($this->searchMaintenance) {
-                    $searchMaintenanceColumns = ['date', 'amount', 'note', 'type', 'user_id',]; // Add any additional columns here
+                    $searchMaintenanceColumns = ['id', 'date', 'amount', 'note', 'type', 'user_id',]; // Add any additional columns here
                     $queryMaintenance->where(function ($query) use ($searchMaintenanceColumns) {
                         foreach ($searchMaintenanceColumns as $column) {
-                            $query->orWhere($column, 'like', '%' . $this->searchMaintenance . '%');
+                            $query->orWhere($column, 'like', '%' . trim($this->searchMaintenance) . '%');
                         }
                     });
                     $searchQueryMaintenance->where(function ($query) use ($searchMaintenanceColumns) {
                         foreach ($searchMaintenanceColumns as $column) {
-                            $query->orWhere($column, 'like', '%' . $this->searchMaintenance . '%');
+                            $query->orWhere($column, 'like', '%' . trim($this->searchMaintenance) . '%');
                         }
                     });
                 }
@@ -222,15 +256,15 @@ class MaintenanceIndex extends Component
 
     protected function dataInput()
     {
-        // $this->type = $this->maintenance->type;
+        $this->type = $this->maintenance->type;
         $this->amount = $this->maintenance->amount;
         $this->note  = $this->maintenance->note;
-        // $this->date = $this->maintenance->date;
+        $this->date = $this->maintenance->date;
     }
     public function blankInput()
     {
         $this->date = date("Y-m-d");
-        $this->amount = ""; 
+        $this->amount = "";
         $this->note = "";
         $this->user_id = $this->user_id;
         $this->type = $this->type;

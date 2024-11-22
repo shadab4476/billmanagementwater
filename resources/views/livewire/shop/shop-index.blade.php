@@ -1,4 +1,16 @@
 <section>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    {{-- select2  --}}
+    <!-- Include Select2 CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+    <!-- Include Select2 JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {{-- select2 end --}}
+
 
     {{-- page title start --}}
     <x-slot name="title">
@@ -153,6 +165,10 @@
                 class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete All
             </button>
         </div>
+        {{-- filter bar start --}}
+            <x-filterbar />
+
+        {{-- filter bar end --}}
         <div class="overflow-x-auto w-full">
             <table class="min-w-full  bg-white border border-gray-200">
                 <thead class="w-full">
@@ -234,8 +250,23 @@
             </table>
         </div>
         <div class="flex justify-start gap-x-2">
-            {{ $shops->links('pagination::tailwind') }}
+            {{-- {{ $shops->links('pagination::tailwind') }} --}}
+            {{ $shops->links() }}
         </div>
 
     </div>
+
+    <script>
+        function initializeSelete2() {
+
+            $('#perPage').select2({
+                allowClear: false
+            });
+            $('#perPage').on('change', function(e) {
+                var perPage_data = $('#perPage').val();
+                @this.set('perPage', perPage_data);
+            });
+        }
+        initializeSelete2();
+    </script>
 </section>
