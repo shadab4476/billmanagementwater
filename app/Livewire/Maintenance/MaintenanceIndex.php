@@ -3,6 +3,7 @@
 namespace App\Livewire\Maintenance;
 
 use App\Models\Maintenance;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,7 +13,7 @@ class MaintenanceIndex extends Component
     use WithPagination;
     public  $date, $amount, $note, $user_id, $total_amount, $type = "1"; //input variable
     public $perPage,  $getAllMaintenance = false, $searchMaintenance, $orderBy, $startDate, $endDate; // filtering
-    public $totalAmount, $income, $expense, $monthName; //amount income expense show 
+    public $totalAmount, $income, $expense, $currentMonthName; //amount income expense show 
     public $maintenance_id, $maintenance;
     public $showDeleteModal = false, $editModelMaintenance = false; //models
     public  $maintenance_select = [], $selectAll = false; //select all checkbox deleted
@@ -181,6 +182,63 @@ class MaintenanceIndex extends Component
             }
         }
     }
+
+    public function exportPdf()
+    {
+        $queryMaintenance = Maintenance::query(); //data sent query
+        $monthName = "All bills after the 1'st bill .";
+        // Current month range
+        $startOfCurrentMonth = Carbon::now()->startOfMonth();
+        $endOfCurrentMonth = Carbon::now()->endOfMonth();
+        $queryMaintenance->orderBy("id", "desc"); //all time id descending ordered
+        // get all maintenance on click button
+        if (!$this->getAllMaintenance) {
+            $queryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
+            $monthName = $this->currentMonthName;  // variable value from rander function.
+        }
+        // search
+        if ($this->searchMaintenance) {
+            $searchMaintenanceColumns = ['id', 'date', 'amount', 'note', 'type', 'user_id',]; // Add any additional columns here
+            $queryMaintenance->where(function ($query) use ($searchMaintenanceColumns) {
+                foreach ($searchMaintenanceColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . trim($this->searchMaintenance) . '%');
+                }
+            });
+        }
+
+        // min max date range filter
+        if ($this->startDate && $this->endDate) {
+            $queryMaintenance->whereBetween('date', [$this->startDate, $this->endDate]); //maintenance data sent 
+            $monthName = $this->startDate .  " To " . $this->endDate;
+        } elseif ($this->startDate) {
+            // Only startDate has a value, filter from this date onward
+            $queryMaintenance->where('date', '>=', $this->startDate); //maintenance data sent 
+            $monthName = $this->startDate . "After date";
+        } elseif ($this->endDate) {
+            // Only endDate has a value, filter up to this date
+            $queryMaintenance->where('date', '<=', $this->endDate);
+            $monthName = $this->endDate . "Before date";
+        }
+        $maintenances =   $queryMaintenance->get();
+        $this->income = (clone $queryMaintenance)->whereType(1)->sum('amount'); // amount data sent to view files... 
+        $this->expense = (clone $queryMaintenance)->whereType(0)->sum('amount'); // amount data sent to view files... 
+        $this->totalAmount = $this->income - $this->expense; // amount data sent to view files... 
+
+        // Load the PDF with headers, footers, and pagination
+        $pdf = Pdf::loadView('livewire.maintenance.pdf-maintenance', [
+            'maintenances' => $maintenances,
+            'getAllMaintenance' => $this->getAllMaintenance,
+            'income' => $this->income,
+            'expense' => $this->expense,
+            'totalAmount' => $this->totalAmount,
+            'monthName' => $monthName,
+        ])->setPaper('a4', 'portrait');
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            'maintenance-detail.pdf'
+        );
+    }
+
     public function render()
     {
         if (auth()->user()->hasRole('superAdmin')) {
@@ -191,11 +249,11 @@ class MaintenanceIndex extends Component
                 // Current month range
                 $startOfCurrentMonth = Carbon::now()->startOfMonth();
                 $endOfCurrentMonth = Carbon::now()->endOfMonth();
+                $this->currentMonthName = Carbon::now()->startOfMonth()->format('F');
                 $queryMaintenance->orderBy("id", "desc"); //all time id descending ordered
                 // get all maintenance on click button
                 if (!$this->getAllMaintenance) {
                     $queryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
-                    $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
                     $searchQueryMaintenance->whereBetween('date', [$startOfCurrentMonth, $endOfCurrentMonth]);
                 }
 

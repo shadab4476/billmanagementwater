@@ -12,7 +12,7 @@
         event.preventDefault(); 
         // Show confirmation dialog
         if (confirm('Are you sure you want to logout?')) {
-            // If the user confirms, submit the form programmatically
+            // If the user confirms, submit the form progr ammatically
             logoutForm.dispatchEvent(new Event('submit', {
                 'bubbles': true
             }));

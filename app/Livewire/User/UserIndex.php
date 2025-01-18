@@ -3,6 +3,7 @@
 namespace App\Livewire\User;
 
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -216,7 +217,35 @@ class UserIndex extends Component
         $this->phone = "";
         $this->password = "";
     }
-
+    public function exportPdf()
+    {
+        $queryUsers = User::query();
+        $queryUsers->orderBy("created_at", "desc");
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+            $queryUsers->with('roles');
+        } else {
+            $queryUsers->whereUserId(auth()->user()->id);
+        }
+        // search
+        if ($this->search) {
+            $searchShopColumns = ['id', 'email', "phone", "name"]; // Add any additional columns here
+            $queryUsers->where(function ($query) use ($searchShopColumns) {
+                foreach ($searchShopColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                }
+            });
+        }
+        $users =  $queryUsers->get();
+        // Load the PDF with headers, footers, and pagination
+        $pdf = Pdf::loadView('livewire.user.pdf-user', [
+            'users' => $users,
+            'isActive' => $this->isActive,
+        ])->setPaper('a4', 'portrait');
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            'users-detail.pdf'
+        );
+    }
     public function render()
     {
         try {

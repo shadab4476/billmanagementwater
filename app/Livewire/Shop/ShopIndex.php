@@ -7,7 +7,7 @@ use Livewire\WithFileUploads;
 use Livewire\Component;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithPagination;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShopIndex extends Component
 {
@@ -17,6 +17,7 @@ class ShopIndex extends Component
     public $isActive, $time; //active check
     public $perPage, $validPerPageOptions; // pagiantion variables
     public $search; // search variable
+
     public function mount()
     {
         try {
@@ -86,7 +87,11 @@ class ShopIndex extends Component
             } else {
                 $shop_data['shop_image'] = null;
             }
+            $shop_data['status'] = 0;
             Shop::create($shop_data);
+
+            // Fetch the updated shop status
+            $this->getStatus(); // Call to fetch the status after creating the shop
             $this->render();
             $this->mainModelClose();
             session()->flash('success', 'Shop created successfully...');
@@ -261,6 +266,36 @@ class ShopIndex extends Component
             $this->mainModelClose();
             session()->flash('error', 'Somthing went wrong.. ' . $e->getMessage());
         }
+    }
+
+    public function exportPdfShop()
+    {
+        $queryShops = Shop::query();
+        if (auth()->user()->hasAnyRole(['admin', 'superAdmin'])) {
+            $queryShops->with('users')->orderBy("created_at", "desc");
+        } else {
+            $queryShops->with('users')->whereUserId(auth()->user()->id)->orderBy("created_at", "desc");
+        }
+        // search
+        if ($this->search) {
+            $searchShopColumns = ['id', 'shop_address', "shop_name", "shop_description"]; // Add any additional columns here
+            $queryShops->where(function ($query) use ($searchShopColumns) {
+                foreach ($searchShopColumns as $column) {
+                    $query->orWhere($column, 'like', '%' . trim($this->search) . '%');
+                }
+            });
+        }
+        $shops =   $queryShops->get();
+
+        // Load the PDF with headers, footers, and pagination
+        $pdf = Pdf::loadView('livewire.shop.pdf-shop', [
+            'shops' => $shops,
+            'isActive' => $this->isActive,
+        ])->setPaper('a4', 'portrait');
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            'shops-detail.pdf'
+        );
     }
     public function render()
     {

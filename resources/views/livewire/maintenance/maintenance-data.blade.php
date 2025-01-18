@@ -99,9 +99,13 @@
                         <h3 class="text-2xl font-bold ">Today's Maintenance Bills</h3>
                         <a wire:navigate href="{{ route('all.maintenance') }}"
                             class="py-3 px-8 hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded ">Index</a>
-                        <button type="button" wire:click="openDeleteModel" {{ empty($maintenance_select) ? 'disabled' : '' }}
-                            class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete All
-                        </button>
+                        @if (!empty($maintenance_select))
+                            <button type="button" wire:click="openDeleteModel"
+                                {{ empty($maintenance_select) ? 'disabled' : '' }}
+                                class="py-3 px-8 hover:bg-red-600 transition-all bg-red-500 text-slate-50 rounded mb-2">Delete
+                                All
+                            </button>
+                        @endif
                     </div>
                     <div class="overflow-x-auto w-full">
                         <table class="min-w-full  bg-white border border-gray-200">

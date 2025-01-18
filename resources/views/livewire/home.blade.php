@@ -27,7 +27,10 @@
             </div>
         </div>
     </div>
-
+    <img src="{{ asset('assets/images/app/hdw_2cup_bg.jpg') }}" alt="">
+    <img src="{{ asset('assets/images/app/hdw_cup_bottol.jpg') }}" alt="">
+    <img src="{{ asset('assets/images/app/hdw_cup_water.jpg') }}" alt="">
+    <img src="{{ asset('assets/images/app/hdw_1cup.jpg') }}" alt="">
     {{-- <img class="w-full" src="{{ asset('assets/images/app/water_main_bg_webapp.jpg') }}" alt="">
     <img class="w-full" src="{{ asset('assets/images/app/water_bg_main.jpg') }}" alt="">
     <img class="w-full" src="{{ asset('assets/images/app/water_bg_bottle_little.jpg') }}" alt=""> --}}

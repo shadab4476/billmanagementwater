@@ -15,6 +15,7 @@ class Shop extends Model
         "shop_name",
         "shop_address",
         "shop_image",
+        "status",
         "shop_description",
     ];
 
