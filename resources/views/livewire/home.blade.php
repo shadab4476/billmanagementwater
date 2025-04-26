@@ -11,6 +11,16 @@
     @if (session()->has('error'))
         <h2 class="text-white py-2  text-center px-5 bg-red-500">{{ session()->get('error') }} </h2>
     @endif
+    {{-- 
+@php
+$a=10;
+$b;
+$c;
+$b=$a++;
+$c=$a;
+echo $a.$b.$c;
+@endphp --}}
+
     <div class="homeBackgroundImage  md:py-[250px] topSection">
         <div class="mx-auto container px-5">
             <div class="w-full ">
@@ -27,6 +37,8 @@
             </div>
         </div>
     </div>
+
+
     <img src="{{ asset('assets/images/app/hdw_2cup_bg.jpg') }}" alt="">
     <img src="{{ asset('assets/images/app/hdw_cup_bottol.jpg') }}" alt="">
     <img src="{{ asset('assets/images/app/hdw_cup_water.jpg') }}" alt="">

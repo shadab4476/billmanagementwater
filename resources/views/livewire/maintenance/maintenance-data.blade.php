@@ -36,9 +36,9 @@
                     delete="deleteMaintenance" closeModel="closeDeleteModal" />
             @endif
 
-            <div class="flex justify-between items-stretch flex-warp">
+            <div class="flex justify-between items-stretch flex-wrap space-y-4">
 
-                <div class="md:w-[25%] max-w-xl px-6 py-2 bg-white shadow-md  rounded-lg">
+                <div class="lg:w-[25%] w-full sm:w-full px-6 py-2 bg-white shadow-md  rounded-lg">
                     <h2 class="text-2xl font-bold mb-6">Create Maintenance Bill</h2>
                     <form class="space-y-4 w-full md:items-center md:justify-between md:flex md:flex-wrap "
                         wire:submit.prevent="store">
@@ -46,7 +46,7 @@
                         <div wire:ignore class="w-full">
                             <x-form-label label_for="type" input_label="Type" star="true" />
                             <select wire:model.live="type" id="type"
-                                class="w-full text-slate-950 px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                class="max-w-[100%] w-full text-slate-950 px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="1" {{ $type == 1 ? 'selected' : '' }}>Income</option>
                                 <option value="0">Expense</option>
                             </select>
@@ -94,7 +94,7 @@
                     </form>
                 </div>
 
-                <div class="md:w-[75%] w-full">
+                <div class="lg:w-[73%] w-full  sm:w-full md:w-[100%]">
                     <div class="flex justify-between pb-4 items-center">
                         <h3 class="text-2xl font-bold ">Today's Maintenance Bills</h3>
                         <a wire:navigate href="{{ route('all.maintenance') }}"
@@ -187,6 +187,7 @@
                             dateFormat: 'yy-mm-dd',
                             changeMonth: true,
                             changeYear: true,
+                            maxDate: today, // Disable dates after today
                             onSelect: function(dateText) {
                                 // This will send the selected date to Livewire
                                 @this.set('date', dateText);

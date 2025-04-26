@@ -16,17 +16,13 @@ return new class extends Migration
             // i want to create bills management system only cash and please help me to create the column
             $table->unsignedBigInteger('shop_id');
             $table->unsignedBigInteger('user_id');
-            $table->string('bill_date');
-            $table->string('bill_due_date');
-            $table->boolean('bill_status')->default('1'); // 0 = paid and 1 = unpaid
-            // $table->string('bill_discount'); this will be show in frontend 
-            // $table->string('bill_tax');this will be show in frontend 
-            // $table->string('bill_net_total');this will be show in frontend 
-            $table->string('bill_payment_method')->default('cash');
-            $table->string('bill_payment_date');
-            $table->string('paided_amount');
-            $table->string('bill_note');
+            $table->string('date');
+            $table->integer('quantity');
+            $table->integer('rate');
+            $table->string('note')->nullable();
             $table->timestamps();
+            $table->foreign("shop_id")->references("id")->on("shops")->onDelete("cascade");
+            $table->foreign("user_id")->references('id')->on("users")->onDelete("cascade");
         });
     }
 
@@ -38,4 +34,4 @@ return new class extends Migration
         Schema::dropIfExists('bills');
     }
 };
-            $table->string('bill_total');
+$table->string('bill_total');

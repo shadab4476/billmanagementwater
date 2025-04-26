@@ -22,112 +22,120 @@
         <span wire:poll.5s="getStatus" class="invisible hidden opacity-0">{{ $time }}</span>
     @endif
     @if ($modelmain == true)
-        <div class="fixed overflow-y-scroll top-[50%] left-0 bg-zinc-400 -translate-y-[50%] z-50 h-full w-full ">
-            <div class="flex justify-center items-center">
-                @if ($editModelUser == false)
-                    <div class="w-[30%]  mt-2 mx-auto">
-                        {{-- create form --}}
-                        <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="register">
-                            <div>
-                                <x-form-label star="true" label_for="name" input_label="Name" />
-                                <x-form-input id="name" input_label="Name" class="" wire:model.live="name"
-                                    placeholder="Name" type="text" required />
-                                @error('name')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
+        <div class="fixed overflow-y-scroll top-[50%] left-0 bg-black -translate-y-[50%] z-50 h-full w-full ">
+            <div class=" mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="bg-gray-50 shadow-md rounded-lg p-8">
 
-                            <div>
-                                <x-form-label star="true" label_for="email" input_label="Email" />
-                                <x-form-input id="email" input_label="Email" wire:model.live="email"
-                                    placeholder="name@company.com" type="email" required />
-                                @error('email')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    <div class="flex justify-center items-center">
+                        @if ($editModelUser == false)
+                            <div class="w-[100%]  lg:w-[50%]  mt-2 mx-auto">
+                                <h2 class="text-xl font-semibold text-gray-800 mb-6">Create User</h2>
+                                {{-- create form --}}
+                                <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="register">
+                                    <div>
+                                        <x-form-label star="true" label_for="name" input_label="Name" />
+                                        <x-form-input id="name" input_label="Name" class=""
+                                            wire:model.live="name" placeholder="Name" type="text" required />
+                                        @error('name')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
-                            <div>
-                                <x-form-label star="true" label_for="phone" input_label="Phone" />
-                                <x-form-input id="phone" wire:model.live="phone" placeholder="1234567890"
-                                    type="number" required />
-                                @error('phone')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
+                                    <div>
+                                        <x-form-label star="true" label_for="email" input_label="Email" />
+                                        <x-form-input id="email" input_label="Email" wire:model.live="email"
+                                            placeholder="name@company.com" type="email" required />
+                                        @error('email')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <x-form-label star="true" label_for="phone" input_label="Phone" />
+                                        <x-form-input id="phone" wire:model.live="phone" placeholder="1234567890"
+                                            type="number" required />
+                                        @error('phone')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
 
-                            <div class="relative">
-                                <x-form-label star="true" label_for="password" input_label="Password" />
-                                <div class="relative">
-                                    <input type="{{ $passwordType }}" wire:model="password" id="password"
-                                        placeholder="••••••••"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    <button type="button" class="absolute -translate-y-1/2 top-1/2 right-[20px]"
-                                        wire:click="typeToggle">
-                                        <span id="eyeIcon"
-                                            class="block">{{ $passwordType == 'password' ? '👁️' : '🙈 ' }}</span>
-                                        <!-- Eye icon for toggle -->
-                                    </button>
-                                </div>
-                                @error('password')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
-                                    wire:click="mainModelClose">Close</button>
+                                    <div class="relative">
+                                        <x-form-label star="true" label_for="password" input_label="Password" />
+                                        <div class="relative">
+                                            <input type="{{ $passwordType }}" wire:model="password" id="password"
+                                                placeholder="••••••••"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                            <button type="button"
+                                                class="absolute -translate-y-1/2 top-1/2 right-[20px]"
+                                                wire:click="typeToggle">
+                                                <span id="eyeIcon"
+                                                    class="block">{{ $passwordType == 'password' ? '👁️' : '🙈 ' }}</span>
+                                                <!-- Eye icon for toggle -->
+                                            </button>
+                                        </div>
+                                        @error('password')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
+                                            wire:click="mainModelClose">Close</button>
 
-                                <x-form-button button_text="Create an account" class="!w-[50%]" button_type="submit"
-                                    target="register" />
+                                        <x-form-button button_text="Create an account" class="!w-[50%]"
+                                            button_type="submit" target="register" />
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        @else
+                            {{-- update form --}}
+
+                            <div class="w-[100%]  lg:w-[50%]  mt-2 mx-auto">
+                                <h2 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl">
+                                    {{ $name }}
+                                    Profile Update</h2>
+                                <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="updateUser">
+
+                                    <div>
+                                        <x-form-label star="true" label_for="name" input_label="Name" />
+                                        <x-form-input id="name" input_label="Name" class=""
+                                            wire:model.live="name" placeholder="Name" type="text" required />
+                                        @error('name')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <x-form-label star="true" label_for="email" input_label="Email" />
+                                        <x-form-input id="email" input_label="Email" wire:model.live="email"
+                                            placeholder="name@company.com" type="email" required />
+                                        @error('email')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div>
+                                        <x-form-label star="true" label_for="phone" input_label="Phone" />
+                                        <x-form-input id="phone" wire:model.live="phone" placeholder="1234567890"
+                                            type="number" required />
+                                        @error('phone')
+                                            <div class="text-red-500">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+
+                                    <div class="flex items-center justify-between">
+                                        <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
+                                            wire:click="mainModelClose">Close</button>
+                                        <x-form-button class="!w-1/2" button_text="Update" button_type="submit"
+                                            target="updateUser" />
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
+
                     </div>
-                @else
-                    {{-- update form --}}
-
-                    <div class="w-[30%]  mt-2 mx-auto">
-                        {{-- create form --}}
-                        <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="updateUser">
-                            <h1 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl">{{ $name }}
-                                Profile Update</h1>
-                            <div>
-                                <x-form-label star="true" label_for="name" input_label="Name" />
-                                <x-form-input id="name" input_label="Name" class="" wire:model.live="name"
-                                    placeholder="Name" type="text" required />
-                                @error('name')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <x-form-label star="true" label_for="email" input_label="Email" />
-                                <x-form-input id="email" input_label="Email" wire:model.live="email"
-                                    placeholder="name@company.com" type="email" required />
-                                @error('email')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <x-form-label star="true" label_for="phone" input_label="Phone" />
-                                <x-form-input id="phone" wire:model.live="phone" placeholder="1234567890"
-                                    type="number" required />
-                                @error('phone')
-                                    <div class="text-red-500">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-
-                            <div class="flex items-center justify-between">
-                                <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
-                                    wire:click="mainModelClose">Close</button>
-                                <x-form-button class="!w-1/2" button_text="Update" button_type="submit"
-                                    target="updateUser" />
-                            </div>
-                        </form>
-                    </div>
-                @endif
-
+                </div>
             </div>
         </div>
     @endif
@@ -158,7 +166,8 @@
                 @role(['superAdmin', 'admin'])
                     @can('create.user')
                         <h3 class="text-2xl font-bold ">Users</h3>
-                        <button wire:click="exportPdf" type="button" wire:loading.attr="disabled"
+                        <button wire:click="exportPdf" type="button" @if (!$users || $users->isEmpty()) disabled @endif
+                            wire:loading.attr="disabled"
                             class="py-3 px-8   hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded mb-2">
                             <span class="w-full flex justify-between items-center" wire:loading.remove wire:target="exportPdf">PDF
                                 <img class="w-[20px] h-[20px]" src="{{ asset('/assets/images/app/downloadImage.png') }} "

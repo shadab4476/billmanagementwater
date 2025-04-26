@@ -1,6 +1,8 @@
-    <input 
-        {{ $attributes->merge(['class' => 'w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-500']) }}>
-   
+{{-- <input 
+{{ $attributes->merge(['class' => 'mt-1 block w-full p-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:border-blue-500']) }}> --}}
+
+<input 
+{{ $attributes->merge(['class' => 'mt-1 block w-full rounded border border-gray-300 shadow-lg focus:outline-none focus:ring focus:border-blue-500 text-gray-800 px-4 py-2 sm:text-sm']) }}>
 
 {{-- <div class="mb-4">
     <label for="{{ $input_id }}"

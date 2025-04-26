@@ -21,116 +21,124 @@
     @endif
     @if ($modelmain == true)
         <div class="fixed overflow-y-scroll top-[50%] left-0 bg-zinc-400 z-50 -translate-y-[50%] h-full w-full ">
+            <div class=" mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="bg-gray-50 shadow-md rounded-lg p-8">
 
-            <div class="flex justify-center items-center">
-                @if ($editModelShop == false)
-                    {{-- create form --}}
-                    <div class="w-[30%] mx-5">
-                        <h1 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl ">Create Shop</h1>
-                        <div class="w-full mt-2 mx-auto">
-                            <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="shopCreate">
+                    <div class="flex justify-center items-center">
+                        @if ($editModelShop == false)
+                            {{-- create form --}}
+                            <div class="w-[100%]  lg:w-[50%]  mx-5">
+                                <h1 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl ">Create Shop</h1>
+                                <div class="w-full mt-2 mx-auto">
+                                    <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="shopCreate">
 
-                                <div>
-                                    <x-form-label label_for="shop_name" star="true" input_label="Shop Name" />
-                                    <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
-                                        placeholder="xyz..." type="text" />
-                                    @error('shop_name')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
+                                        <div>
+                                            <x-form-label label_for="shop_name" star="true"
+                                                input_label="Shop Name" />
+                                            <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
+                                                placeholder="xyz..." type="text" />
+                                            @error('shop_name')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <x-form-label label_for="shop_image" input_label="Shop Image" />
+
+                                            <input type="file" accept=".jpeg,.jpg,.png" wire:model.live="shop_image"
+                                                id="shop_image"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:outline-none block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="1234567890">
+                                            @error('shop_image')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <x-form-label label_for="shop_address" star="true"
+                                                input_label="Shop Address" />
+                                            <x-form-input id="shop_address" wire:model.live="shop_address"
+                                                placeholder="xyz..." type="text" />
+                                            @error('shop_address')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div>
+                                            <x-form-label label_for="shop_description" input_label="Shop Description" />
+                                            <x-form-input id="shop_description" wire:model.live="shop_description"
+                                                placeholder="Shop Description" type="text" />
+                                            @error('shop_description')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+
+                                        <div class="flex items-center justify-between ">
+                                            <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
+                                                wire:click="mainModelClose">Close</button>
+                                            <x-form-button button_text="Create" button_type="submit" class="!w-1/2"
+                                                target="shopCreate" />
+                                        </div>
+                                    </form>
                                 </div>
-                                <div>
-                                    <x-form-label label_for="shop_image" input_label="Shop Image" />
+                            </div>
+                        @else
+                            {{-- update form --}}
 
-                                    <input type="file" accept=".jpeg,.jpg,.png" wire:model.live="shop_image"
-                                        id="shop_image"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:outline-none block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="1234567890">
-                                    @error('shop_image')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <x-form-label label_for="shop_address" star="true" input_label="Shop Address" />
-                                    <x-form-input id="shop_address" wire:model.live="shop_address" placeholder="xyz..."
-                                        type="text" />
-                                    @error('shop_address')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                            <div class="w-[100%]  lg:w-[50%]   mx-5">
+                                <h1 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl">Update Shop</h1>
+                                <div class="w-full mt-2 mx-auto">
+                                    <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="shopUpdate">
+                                        <div>
+                                            <x-form-label label_for="shop_name" star="true"
+                                                input_label="Shop Name" />
+                                            <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
+                                                placeholder="xyz..." type="text" />
+                                            @error('shop_name')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <x-form-label label_for="shop_image" input_label="Shop Image" />
 
-                                <div>
-                                    <x-form-label label_for="shop_description" input_label="Shop Description" />
-                                    <x-form-input id="shop_description" wire:model.live="shop_description"
-                                        placeholder="Shop Description" type="text" />
-                                    @error('shop_description')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                            <input type="file" accept=".jpeg,.jpg,.png" wire:model.live="shop_image"
+                                                id="shop_image"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:outline-none block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="1234567890">
+                                            @error('shop_image')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <x-form-label label_for="shop_address" star="true"
+                                                input_label="Shop Address" />
+                                            <x-form-input id="shop_address" wire:model.live="shop_address"
+                                                placeholder="xyz..." type="text" />
+                                            @error('shop_address')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-
-                                <div class="flex items-center justify-between ">
-                                    <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
-                                        wire:click="mainModelClose">Close</button>
-                                    <x-form-button button_text="Create" button_type="submit" class="!w-1/2"
-                                        target="shopCreate" />
+                                        <div>
+                                            <x-form-label label_for="shop_description" input_label="Shop Description" />
+                                            <x-form-input id="shop_description" wire:model.live="shop_description"
+                                                placeholder="Shop Description" type="text" />
+                                            @error('shop_description')
+                                                <div class="text-red-500">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="flex items-center justify-between ">
+                                            <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
+                                                wire:click="mainModelClose">Close</button>
+                                            <x-form-button button_text="Update" button_type="submit" class="!w-1/2"
+                                                target="shopUpdate" />
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        @endif
+
                     </div>
-                @else
-                    {{-- update form --}}
-
-                    <div class="w-[30%] mx-5">
-                        <h1 class="lg:text-3xl text-2xl font-bold text-center xl:text-4xl">Update Shop</h1>
-                        <div class="w-full mt-2 mx-auto">
-                            <form class="space-y-4 w-full md:space-y-6" wire:submit.prevent="shopUpdate">
-                                <div>
-                                    <x-form-label label_for="shop_name" star="true" input_label="Shop Name" />
-                                    <x-form-input autofocus id="shop_name" wire:model.live="shop_name"
-                                        placeholder="xyz..." type="text" />
-                                    @error('shop_name')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <x-form-label label_for="shop_image" input_label="Shop Image" />
-
-                                    <input type="file" accept=".jpeg,.jpg,.png" wire:model.live="shop_image"
-                                        id="shop_image"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:outline-none block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="1234567890">
-                                    @error('shop_image')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <x-form-label label_for="shop_address" star="true" input_label="Shop Address" />
-                                    <x-form-input id="shop_address" wire:model.live="shop_address" placeholder="xyz..."
-                                        type="text" />
-                                    @error('shop_address')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <x-form-label label_for="shop_description" input_label="Shop Description" />
-                                    <x-form-input id="shop_description" wire:model.live="shop_description"
-                                        placeholder="Shop Description" type="text" />
-                                    @error('shop_description')
-                                        <div class="text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="flex items-center justify-between ">
-                                    <button type="button" class="px-7 bg-red-600 text-slate-50 rounded py-2"
-                                        wire:click="mainModelClose">Close</button>
-                                    <x-form-button button_text="Update" button_type="submit" class="!w-1/2"
-                                        target="shopUpdate" />
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                @endif
-
+                </div>
             </div>
         </div>
     @endif
@@ -160,7 +168,8 @@
     <div class="w-full">
         <div class="flex justify-between items-center">
             <h3 class="text-2xl font-bold ">Shops</h3>
-            <button wire:click="exportPdfShop" type="button" wire:loading.attr="disabled" 
+            <button wire:click="exportPdfShop" @if (!$shops || $shops->isEmpty()) disabled @endif type="button"
+                wire:loading.attr="disabled"
                 class="py-3 px-8   hover:bg-green-400 transition-all bg-green-500 text-slate-50 rounded mb-2">
                 <span class="w-full flex justify-between items-center" wire:loading.remove
                     wire:target="exportPdfShop">PDF <img class="w-[20px] h-[20px]"
